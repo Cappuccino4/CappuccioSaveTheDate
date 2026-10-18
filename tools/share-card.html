@@ -1,0 +1,111 @@
+<!doctype html>
+<!--
+  Link-preview image (public/images/share-card.jpg, 1200 x 630) for iMessage, WhatsApp, Facebook, ...
+  Build helper only — not part of the site. Re-render with: python tools/render-images.py
+  It reuses the real page-2 stage (styles.css, same markup as index.html) in its finished state, so the card
+  matches the site.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Share card</title>
+  <link rel="stylesheet" href="../assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <style>
+    html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--c-bg); }
+    .card {
+      position: relative;
+      width: 1200px;
+      height: 630px;
+      display: flex;
+      align-items: center;
+      background:
+        radial-gradient(120% 90% at 30% 55%, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 60%),
+        var(--c-bg);
+    }
+    .card .stage {
+      --sw: 520px;
+      margin: 0 0 0 56px;
+    }
+    .card-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 40px 0 10px;
+      text-align: center;
+      color: var(--c-ink);
+    }
+    .card-eyebrow {
+      margin: 0;
+      font: 600 19px/1.3 var(--font-sans);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .card-names {
+      margin: 22px 0 0;
+      font: 400 96px/1.02 var(--font-script);
+      word-spacing: 0.12em; /* like the site's .names: Font 1's space is narrow */
+    }
+    .card-names span { display: block; white-space: nowrap; }
+    .card-rule {
+      width: 64px;
+      height: 1px;
+      margin: 30px 0 26px;
+      background: var(--c-accent);
+    }
+    /* large enough to read in a chat preview, where the card is shown about 300 px wide */
+    .card-date {
+      margin: 0;
+      font: 600 28px/1.3 var(--font-sans);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="stage" aria-hidden="true">
+      <p class="save-date">
+        <span class="sd-line sd-line--1 wipe">Save Our</span>
+        <span class="sd-line sd-line--2 wipe">Date</span>
+        <span class="sd-line sd-line--3 wipe">04.18.27</span>
+      </p>
+      <div class="env-pos">
+        <div class="env">
+          <img class="env-inside" src="../public/images/cutouts/envelope-inside.webp" width="508" height="345" alt="">
+          <div class="env-flap-wrap">
+            <div class="env-flap">
+              <img class="env-flap-face env-flap-front" src="../public/images/cutouts/envelope-flap-front.webp" width="508" height="230" alt="">
+              <img class="env-flap-face env-flap-back" src="../public/images/cutouts/envelope-flap-back.webp" width="508" height="230" alt="">
+            </div>
+          </div>
+          <div class="env-photo-clip">
+            <div class="env-photo-rise">
+              <img class="env-photo-shadow" src="../public/images/cutouts/photo-shadow.webp" width="587" height="531" alt="">
+              <img class="env-photo" src="../public/images/cutouts/photo.webp" width="515" height="435" alt="">
+            </div>
+          </div>
+          <img class="env-shadow" src="../public/images/cutouts/envelope-shadow.webp" width="584" height="418" alt="">
+          <img class="env-front" src="../public/images/cutouts/envelope.webp" width="551" height="412" alt="">
+          <img class="env-flap-shadow" src="../public/images/cutouts/envelope-flap-shadow.webp" width="508" height="230" alt="">
+          <p class="env-note">A formal<br>invitation<br>will follow</p>
+        </div>
+      </div>
+      <div class="stage-strip">
+        <div class="strip">
+          <img class="strip-img" src="../public/images/cutouts/strip.webp" width="115" height="419" alt="">
+        </div>
+      </div>
+    </div>
+    <div class="card-text">
+      <p class="card-eyebrow">We are getting married!</p>
+      <p class="card-names"><span>Austin &amp;</span><span>Kelsey Grace</span></p>
+      <div class="card-rule"></div>
+      <p class="card-date">Sunday · April 18 · 2027</p>
+    </div>
+  </div>
+</body>
+</html>

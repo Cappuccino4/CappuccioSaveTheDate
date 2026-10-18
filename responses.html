@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- This page shows every guest's address, so it may only load its own files and talk to Google Apps Script
+       (script.google.com answers with a redirect to script.googleusercontent.com, so both are needed).
+       'unsafe-inline' styles: WebKit's built-in <select> styling needs it; there are no inline scripts. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Private page for Austin & Kelsey Grace: not linked from the site and kept out of search engines. -->
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#d6dee3">
+  <meta name="color-scheme" content="only light">
+  <title>Guest Responses · Austin &amp; Kelsey Grace</title>
+  <link rel="icon" href="public/images/icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="public/images/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/responses.css">
+  <script src="assets/js/config.js"></script>
+  <script type="module" src="assets/js/responses.js"></script>
+</head>
+<body>
+  <main class="rs-page">
+    <header class="rs-header">
+      <p class="rs-eyebrow">Austin &amp; Kelsey Grace</p>
+      <h1 class="rs-title" id="rs-title">Guest Responses</h1>
+      <p class="rs-date">Save the Date · 04.18.27</p>
+    </header>
+
+    <!-- Shown while assets/js/config.js has no formEndpoint yet -->
+    <section class="rs-card rs-panel" id="rs-setup" aria-labelledby="rs-setup-title" hidden>
+      <h2 class="rs-panel-title" id="rs-setup-title">Not connected yet</h2>
+      <p class="rs-text">Replies will show up here once the website is connected to your Google Sheet.</p>
+      <ol class="rs-steps">
+        <li>Follow <strong>Collect responses in Google Sheets</strong> in the README.</li>
+        <li>Paste your web app URL (it ends in <code>/exec</code>) into <code>assets/js/config.js</code>.</li>
+        <li>Add an <code>ADMIN_PASSPHRASE</code> script property to unlock this page.</li>
+      </ol>
+      <p class="rs-text rs-small"><a class="rs-link" href="?demo">Preview this page with sample replies</a></p>
+    </section>
+
+    <!-- Passphrase -->
+    <section class="rs-card rs-panel" id="rs-login" aria-labelledby="rs-login-title" hidden>
+      <form class="rs-login-form" id="rs-login-form" novalidate>
+        <h2 class="rs-panel-title" id="rs-login-title">Welcome back</h2>
+        <p class="rs-text">Enter the passphrase you saved as <code>ADMIN_PASSPHRASE</code> in Apps Script.</p>
+        <input type="text" name="username" autocomplete="username" value="Austin &amp; Kelsey Grace" hidden>
+        <label class="rs-label" for="rs-pass">Passphrase</label>
+        <div class="rs-pass">
+          <input class="rs-input" id="rs-pass" name="password" type="password" autocomplete="current-password"
+                 autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" required
+                 aria-describedby="rs-login-error">
+          <button class="rs-reveal" id="rs-reveal" type="button" aria-controls="rs-pass" aria-label="Show passphrase">Show</button>
+        </div>
+        <p class="rs-error" id="rs-login-error" role="alert" hidden>
+          <svg class="rs-error-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.6"/><path d="M8 4.7v4.1"/><circle class="rs-dot" cx="8" cy="11.3" r=".55"/></svg>
+          <span class="rs-error-text"></span>
+        </p>
+        <button class="btn rs-submit" id="rs-submit" type="submit">
+          <span class="rs-spinner" aria-hidden="true"></span><span class="rs-submit-label">View responses</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Responses -->
+    <section class="rs-dash" id="rs-dash" aria-labelledby="rs-dash-title" hidden>
+      <h2 class="sr-only" id="rs-dash-title" tabindex="-1">All responses</h2>
+      <p class="rs-demo" id="rs-demo" hidden>Demo — these are made-up sample replies, not your guests.</p>
+
+      <div class="rs-topbar">
+        <p class="rs-updated" id="rs-updated">Updated just now</p>
+        <div class="rs-topbar-actions">
+          <button class="btn-link rs-refresh" id="rs-refresh" type="button">
+            <svg class="rs-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M16.2 10a6.2 6.2 0 1 1-1.8-4.4"/><path d="M16.4 3.6v3.6h-3.6"/></svg>Refresh
+          </button>
+          <button class="btn-link" id="rs-lock" type="button">
+            <svg class="rs-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.6a3 3 0 0 1 6 0V9"/></svg>Lock
+          </button>
+        </div>
+      </div>
+
+      <p class="rs-error rs-banner" id="rs-banner" role="alert" hidden>
+        <svg class="rs-error-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.6"/><path d="M8 4.7v4.1"/><circle class="rs-dot" cx="8" cy="11.3" r=".55"/></svg>
+        <span class="rs-error-text"></span>
+      </p>
+
+      <!-- Only when the Sheet holds more rows than the server sends (a safety limit against floods of junk) -->
+      <p class="rs-notice" id="rs-truncated" hidden></p>
+
+      <!-- The totals double as filters: tap a number to see just those replies. -->
+      <div class="rs-stats" role="group" aria-label="Show">
+        <button class="rs-stat" type="button" data-filter="all" aria-pressed="true">
+          <span class="rs-stat-num" id="rs-stat-total">0</span><span class="rs-stat-label">Responses</span>
+        </button>
+        <button class="rs-stat" type="button" data-filter="mail" aria-pressed="false">
+          <span class="rs-stat-num" id="rs-stat-mail">0</span><span class="rs-stat-label">Addresses</span>
+        </button>
+        <button class="rs-stat" type="button" data-filter="cant" aria-pressed="false">
+          <span class="rs-stat-num" id="rs-stat-cant">0</span><span class="rs-stat-label">Can’t make&nbsp;it</span>
+        </button>
+        <button class="rs-stat" type="button" data-filter="married" aria-pressed="false">
+          <span class="rs-stat-num" id="rs-stat-married">0</span><span class="rs-stat-label">Married</span>
+        </button>
+      </div>
+
+      <div class="rs-search-wrap">
+        <label class="sr-only" for="rs-search">Search responses</label>
+        <svg class="rs-search-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle cx="8.6" cy="8.6" r="5.6"/><path d="M12.8 12.8l4.2 4.2"/></svg>
+        <input class="rs-input rs-search" id="rs-search" type="search" placeholder="Search names, cities…"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
+      </div>
+
+      <div class="rs-listbar">
+        <p class="rs-count" id="rs-count">0 responses</p>
+        <label class="rs-sort-wrap">
+          <span class="sr-only">Sort responses</span>
+          <span class="rs-sort-face" id="rs-sort-face" aria-hidden="true">Newest first</span>
+          <select class="rs-sort" id="rs-sort">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </label>
+        <button class="btn rs-download" id="rs-download" type="button" aria-describedby="rs-download-note">
+          <svg class="rs-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 3.5v9"/><path d="M6.2 9l3.8 3.8L13.8 9"/><path d="M4 15.8h12"/></svg>Download CSV
+        </button>
+        <p class="rs-download-note" id="rs-download-note" hidden></p>
+      </div>
+
+      <ol class="rs-list" id="rs-list" aria-label="Responses"></ol>
+
+      <div class="rs-card rs-empty" id="rs-empty" hidden>
+        <p class="rs-empty-title" id="rs-empty-title">No replies yet</p>
+        <p class="rs-text" id="rs-empty-text"></p>
+        <button class="btn-link" id="rs-clear" type="button" hidden>Clear search &amp; filters</button>
+      </div>
+
+      <p class="rs-foot">
+        Everything also lives in your Google Sheet. For Excel, download it there as Microsoft Excel (.xlsx):
+        answers stay plain text, so ZIP codes keep their zeros and nothing a guest typed runs as a formula.
+        Download CSV above is made safe for Excel too.
+        <a class="rs-link" id="rs-sheet-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open the Google Sheet</a>
+      </p>
+    </section>
+
+    <p class="sr-only" id="rs-live" aria-live="polite" aria-atomic="true"></p>
+  </main>
+
+  <noscript>
+    <p class="rs-noscript">This page needs JavaScript to load your responses. Your Google Sheet has every reply too.</p>
+  </noscript>
+</body>
+</html>

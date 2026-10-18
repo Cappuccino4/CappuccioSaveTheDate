@@ -1,0 +1,1173 @@
+/*
+ * Austin & Kelsey Grace · Save the Date — screens, layout and motion.
+ * Load order: fonts.css → tokens.css (palette, type, .btn, .btn-link) → this file → form.css.
+ *
+ * Mobile first: one centred column (max --page-max) on the flat page colour. Each screen's intro is a set of
+ * CSS animations scoped to `.screen.play`; app.js adds `.play` once the fonts are ready and removes it once the
+ * screen has faded out, so every intro replays from the start (on a repeat visit app.js speeds it up or skips to
+ * its end). The *un-animated* styles are the finished states, and the intros only exist for
+ * `prefers-reduced-motion: no-preference`, so reduced motion simply shows the end result. Entrances fill
+ * backwards only: once finished they let go of the element (so e.g. the buttons' :active press still works).
+ *
+ * Image geometry comes from public/images/cutouts/geometry.json (written by tools/process-images.py).
+ * Units below marked "src px" are pixels of the original images.
+ */
+
+/* ============================================================================================ shell */
+
+body {
+  overflow-x: hidden; /* belt and braces — .app clips horizontally too */
+}
+
+.app {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+@supports (overflow: clip) {
+  .app {
+    overflow-x: clip;
+  }
+}
+
+.screen {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(var(--gutter), env(safe-area-inset-right))
+    max(26px, env(safe-area-inset-bottom))
+    max(var(--gutter), env(safe-area-inset-left));
+  text-align: center;
+}
+
+.js .screen {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.32s ease;
+}
+
+.js .screen.is-active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.js .screen.is-active.play {
+  opacity: 1;
+}
+
+/* back/forward (the browser, or the iPhone's swipe, has already shown the way): just a quick fade in */
+.js .screen.is-quick {
+  transition-duration: 0.2s;
+}
+
+/* leaving: a quick fade-out with the intro frozen where it is (finishing it would make everything jump), and no
+   longer tappable (a double tap on "Go back" must not act twice).
+   !important because every `animation` shorthand below resets animation-play-state, whatever its specificity. */
+.js .screen.is-leaving {
+  transition-duration: 0.18s;
+  pointer-events: none;
+}
+
+.js .screen.is-active.play.is-leaving {
+  opacity: 0;
+}
+
+.js .screen.is-leaving *,
+.js .screen.is-leaving *::before,
+.js .screen.is-leaving *::after {
+  animation-play-state: paused !important;
+}
+
+/* brought in by a tap: not tappable for a moment (app.js lockInput), so a double tap's second tap can't land on one
+   of its still-invisible controls */
+.js .screen.is-entering {
+  pointer-events: none;
+}
+
+.no-js .screen {
+  display: none;
+}
+
+/* programmatic focus lands on each screen's heading; no ring for that (keyboard focus rings stay) */
+[data-screen-heading]:focus {
+  outline: none;
+}
+
+.lede {
+  max-width: 300px;
+  margin: 0 auto;
+  font: 400 14px/1.55 var(--font-sans);
+  color: var(--c-ink);
+  text-wrap: balance;
+}
+
+.eyebrow {
+  margin: 0;
+  font: 600 14px/1.3 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+}
+
+.back-link {
+  margin-top: 18px;
+}
+
+/* the arrow is drawn (the ← character isn't in the Poppins subset); same icon as the form's Back button */
+.back-link-icon {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Handwriting reveal: a soft-edged mask sweeps left → right. The padding (cancelled by the negative margin)
+   keeps the script's swashes and descenders inside the masked box. Parents of .wipe are flex containers so
+   those negative margins cancel exactly instead of collapsing. */
+.wipe {
+  display: block;
+  padding: 0.14em 0.36em 0.3em;
+  margin: -0.14em -0.36em -0.3em;
+  -webkit-mask-image: linear-gradient(90deg, #000 44%, transparent 56%);
+  mask-image: linear-gradient(90deg, #000 44%, transparent 56%);
+  -webkit-mask-size: 250% 100%;
+  mask-size: 250% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+}
+
+/* ================================================================================ page 1 · home */
+
+.screen--home {
+  /* the names set the rhythm; the photo-booth takes the height that is left */
+  --names-size: clamp(44px, 15vw, 72px);
+  --invited-size: clamp(36px, 10.6vw, 46px);
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+.home-eyebrow {
+  margin-top: 4px;
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 8px 0 0;
+  font: 400 var(--names-size)/1.02 var(--font-script);
+  word-spacing: 0.12em; /* Font 1's space is narrow; the mockup's words breathe more */
+  color: var(--c-ink);
+}
+
+.names-line {
+  white-space: nowrap;
+}
+
+/* Photo-booth: holder cut-out (260 x 626 src px) with the strip printing out of its tray.
+   Its height is what the viewport has left after the other lines (148 px of padding, margins, eyebrow and
+   button + the two script lines), so on a typical phone everything down to the button fits on one screen.
+   svh (toolbars shown) rather than dvh, so it doesn't resize while Safari's toolbars collapse on scroll.
+   --k = one source pixel of the holder, so the tray geometry below is in measured src px. */
+.booth {
+  --booth-h: clamp(300px, calc(100vh - 148px - var(--names-size) * 2.04 - var(--invited-size) * 1.1), 470px);
+  --k: calc(var(--booth-h) / 626);
+  position: relative;
+  flex: none;
+  width: calc(var(--booth-h) * 0.415335); /* 260 / 626 */
+  height: var(--booth-h);
+  margin: 12px auto 0;
+}
+
+@supports (height: 100svh) {
+  .booth {
+    --booth-h: clamp(300px, calc(100svh - 148px - var(--names-size) * 2.04 - var(--invited-size) * 1.1), 470px);
+  }
+}
+
+.booth-holder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+/* The holder's soft shadow is an image drawn by tools/process-images.py, placed per geometry.json (a CSS
+   drop-shadow filter here was re-rendered on every frame of the print, and the shadows below likewise). */
+.booth-shadow {
+  position: absolute;
+  left: -26.154%;
+  top: -7.029%;
+  width: 151.923%;
+  height: 121.406%;
+  max-width: none;
+}
+
+/* the tray's opening (src px x 43–217, y 44–580); its top edge is the printer's slot line */
+.booth-tray {
+  position: absolute;
+  left: calc(var(--k) * 43);
+  top: calc(var(--k) * 44);
+  width: calc(var(--k) * 174);
+  height: calc(var(--k) * 536);
+  overflow: hidden;
+}
+
+/* strip: 120 src px wide (46% of the holder), centred on x = 125; fully printed it hangs 3 px below the slot
+   and stands on the tray floor (y ≈ 541) */
+.booth-print {
+  position: absolute;
+  left: calc(var(--k) * 22);
+  top: calc(var(--k) * 3);
+  width: calc(var(--k) * 120);
+  height: calc(var(--k) * 496.6);
+}
+
+.booth-jitter {
+  width: 100%;
+  height: 100%;
+}
+
+.booth .strip {
+  width: 100%;
+  height: 100%;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.25),
+    calc(var(--k) * 2) calc(var(--k) * 5) calc(var(--k) * 9) rgba(0, 0, 0, 0.42);
+}
+
+/* the dark mouth of the slot, over the emerging strip */
+.booth-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--k) * 18);
+  background: linear-gradient(to bottom, rgba(8, 9, 11, 0.82), rgba(8, 9, 11, 0.38) 45%, rgba(8, 9, 11, 0));
+  pointer-events: none;
+}
+
+/* The strip cut-out keeps the source's size (115 x 419); the strip itself is the rect x 7.41, y 7.38,
+   99.39 x 411.34 src px. .strip is exactly that rect and crops the transparent margin. */
+.strip {
+  position: relative;
+  overflow: hidden;
+  background: #1c1d1f;
+}
+
+.strip-img {
+  position: absolute;
+  left: -7.4555%;   /* 7.41 / 99.39 */
+  top: -1.7941%;    /* 7.38 / 411.34 */
+  width: 115.706%;  /* 115 / 99.39 */
+  height: 101.862%; /* 419 / 411.34 */
+  max-width: none;
+}
+
+.invited {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0 0;
+  font: 400 var(--invited-size)/1.1 var(--font-script);
+  word-spacing: 0.12em;
+  color: var(--c-ink);
+}
+
+.home-cta {
+  margin-top: 10px;
+}
+
+/* a soft sheen that sweeps across the button now and then */
+.btn--shimmer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn--shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -70%;
+  width: 50%;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.34) 50%, rgba(255, 255, 255, 0));
+  transform: skewX(-18deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Short screens (an iPhone SE in Safari shows about 375 x 548): slightly smaller lettering, tighter spacing and a
+   holder that may shrink to 272 px, so "Open your invitation" still fits on the first screen. A typical phone
+   (393 x 659) is above the threshold and keeps the layout above. (640, not less: iOS Safari may measure the height
+   for media queries with its toolbars hidden.) */
+@media (max-height: 640px) {
+  .screen--home {
+    --names-size: clamp(40px, 13vw, 72px);
+    --invited-size: clamp(32px, 9.4vw, 46px);
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  .names {
+    margin-top: 4px;
+  }
+
+  .booth {
+    --booth-h: clamp(272px, calc(100vh - 136px - var(--names-size) * 2.04 - var(--invited-size) * 1.1), 470px);
+    margin-top: 8px;
+  }
+
+  .invited {
+    margin-top: 8px;
+  }
+}
+
+@supports (height: 100svh) {
+  @media (max-height: 640px) {
+    .booth {
+      --booth-h: clamp(272px, calc(100svh - 136px - var(--names-size) * 2.04 - var(--invited-size) * 1.1), 470px);
+    }
+  }
+}
+
+/* Shorter still (the first iPhone SE in Safari, about 320 x 460): smaller again and a holder down to 240 px, so the
+   button stays on the first screen too. (After the rules above, which also apply.) */
+@media (max-height: 480px) and (orientation: portrait) {
+  .screen--home {
+    --names-size: clamp(36px, 12vw, 72px);
+    --invited-size: clamp(30px, 9vw, 46px);
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  .booth {
+    --booth-h: clamp(240px, calc(100vh - 128px - var(--names-size) * 2.04 - var(--invited-size) * 1.1), 470px);
+  }
+
+  .invited {
+    margin-top: 6px;
+  }
+
+  .home-cta {
+    margin-top: 8px;
+  }
+}
+
+@supports (height: 100svh) {
+  @media (max-height: 480px) and (orientation: portrait) {
+    .booth {
+      --booth-h: clamp(240px, calc(100svh - 128px - var(--names-size) * 2.04 - var(--invited-size) * 1.1), 470px);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------- page 1 · choreography */
+
+@media (prefers-reduced-motion: no-preference) {
+  .play .home-eyebrow {
+    animation: fade-down 0.7s var(--ease-out) backwards;
+  }
+
+  .play .names-line--1 {
+    animation: wipe-in 1.3s cubic-bezier(0.45, 0.1, 0.35, 1) 0.2s backwards;
+  }
+
+  .play .names-line--2 {
+    animation: wipe-in 1.35s cubic-bezier(0.45, 0.1, 0.35, 1) 0.72s backwards;
+  }
+
+  .play .booth {
+    animation: rise-in 0.9s var(--ease-out) 0.7s backwards;
+  }
+
+  /* Printer rhythm: four feeds — each stops with one more frame (and its separator) out — short pauses,
+     a hold, then the strip drops free and settles. % = of the strip's own height (496.6 src px). */
+  .play .booth-print {
+    animation: print 3.32s linear 1.2s backwards;
+  }
+
+  /* faint vibration while the printer feeds (one run per feed) */
+  .play .booth-jitter {
+    animation-name: print-jitter, print-jitter, print-jitter, print-jitter;
+    animation-duration: 0.092s;
+    animation-timing-function: linear;
+    animation-iteration-count: 6;
+    animation-delay: 1.2s, 1.95s, 2.7s, 3.45s;
+  }
+
+  .play .invited .wipe {
+    animation: wipe-in 1.1s cubic-bezier(0.45, 0.1, 0.35, 1) 2.6s backwards;
+  }
+
+  .play .home-cta {
+    animation: fade-up 0.6s var(--ease-out) 2.9s backwards;
+  }
+
+  .play .btn--shimmer::after {
+    animation: shimmer 6s ease-in-out 4.8s infinite;
+  }
+}
+
+@keyframes print {
+  0%      { transform: translateY(-100.604%); animation-timing-function: cubic-bezier(0.42, 0, 0.3, 1); }
+  16.566% { transform: translateY(-74.406%); }
+  22.590% { transform: translateY(-74.406%); animation-timing-function: cubic-bezier(0.42, 0, 0.3, 1); }
+  39.157% { transform: translateY(-49.618%); }
+  45.181% { transform: translateY(-49.618%); animation-timing-function: cubic-bezier(0.42, 0, 0.3, 1); }
+  61.747% { transform: translateY(-25.292%); }
+  67.771% { transform: translateY(-25.292%); animation-timing-function: cubic-bezier(0.42, 0, 0.3, 1); }
+  84.337% { transform: translateY(-0.604%); }
+  87.952% { transform: translateY(-0.604%); animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.4); }
+  93.976% { transform: translateY(0.3%); animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1); }
+  100%    { transform: translateY(0); }
+}
+
+@keyframes print-jitter {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(0.35px, 0.1px); }
+  50%  { transform: translate(-0.25px, -0.05px); }
+  75%  { transform: translate(0.2px, 0.08px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(0) skewX(-18deg); opacity: 0; }
+  4%   { opacity: 1; }
+  20%  { transform: translateX(420%) skewX(-18deg); opacity: 0; }
+  100% { transform: translateX(420%) skewX(-18deg); opacity: 0; }
+}
+
+/* ========================================================================= page 2 · invitation */
+
+.screen--invitation {
+  padding-top: max(8px, env(safe-area-inset-top));
+}
+
+/* The stage is one composed piece; everything inside is sized in units of its width (--sw). */
+.stage {
+  --sw: min(calc(100vw - 24px), 460px);
+  --ew: calc(var(--sw) * 0.72);  /* envelope width (level) */
+  position: relative;
+  flex: none;
+  width: var(--sw);
+  height: calc(var(--sw) * 1.125);
+}
+
+/* ---- Save Our / Date / 04.18.27 (Beth Ellen; its line box is very tall, so the stack is set tight). It starts a hair
+   above the stage, so the digits' feet rest on the photo's cream border, as in the mockup, not on its dark band. */
+.save-date {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  left: calc(var(--sw) * 0.475);
+  top: calc(var(--sw) * -0.007);
+  margin: 0;
+  font: 400 calc(var(--sw) * 0.092)/0.92 var(--font-hand);
+  color: var(--c-ink);
+  text-align: left;
+  white-space: nowrap;
+  transform: rotate(15deg);
+  transform-origin: 0 0;
+}
+
+.sd-line--2 {
+  margin-top: 0.04em;    /* (in place of .wipe's negative margin: "Save" and "Date" just touch) */
+  margin-left: 1.8em;
+}
+
+.sd-line--3 {
+  margin-left: -0.25em;
+  letter-spacing: 0.07em;
+}
+
+/* ---- envelope: a level box (507.11 x 344.41 src px) turned 8.138° like the source photo. It sits low enough that,
+   as in the mockup, the date's last line runs over the flap's peak and the photo's cream border rather than the
+   dark photo itself. */
+.env-pos {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--sw) * 0.24);
+  top: calc(var(--sw) * 0.578);
+  width: var(--ew);
+  height: calc(var(--ew) * 0.679162); /* 344.41 / 507.11 */
+}
+
+.env {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(8.138deg);
+}
+
+.env > * {
+  position: absolute;
+  max-width: none;
+}
+
+/* 1 · inner face, seen through the V opening (508 x 345 px, level frame) */
+.env-inside {
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100.1755%;
+  height: 100.1713%;
+}
+
+/* 2 · constructed top flap (508 x 230 px images; hinge 3 px below their top). Open = turned 180° and tucked
+   behind the photo (z 2); while closed it lies over everything (z 7). */
+.env-flap-wrap,
+.env-flap-shadow {
+  top: -0.871%;          /* -3 / 344.41 */
+  left: 0;
+  width: 100.1755%;
+  height: 66.7809%;      /* 230 / 344.41 */
+}
+
+.env-flap-wrap {
+  z-index: 2;
+  -webkit-perspective: calc(var(--ew) * 2.4);
+  perspective: calc(var(--ew) * 2.4);
+  -webkit-perspective-origin: 50% 1.3043%;
+  perspective-origin: 50% 1.3043%;
+}
+
+.env-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  transform-origin: 50% 1.3043%; /* the hinge: 3 / 230 */
+  transform: rotateX(180deg);
+}
+
+.env-flap-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.env-flap-back {
+  transform: rotateX(180deg);
+}
+
+/* Which face shows is also switched explicitly at the edge-on midpoint (see face-front / face-back), so the
+   flip stays right even where backface-visibility is ignored. Open (the end state) = only the inside face. */
+.env-flap-front {
+  visibility: hidden;
+}
+
+/* wax seal (tools/seal.html) on the outside of the flap, near its tip — it flips away with the flap */
+.env-seal {
+  position: absolute;
+  left: 50%;
+  top: 78.3%;            /* centre ~38 src px above the rounded tip */
+  width: 13.5%;
+  height: auto;
+  max-width: none;
+  transform: translate(-50%, -50%) translateZ(0.5px);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  visibility: hidden;    /* open (the end state): no seal */
+}
+
+/* contact shadow of the closed flap; gone once it lifts */
+.env-flap-shadow {
+  z-index: 5;
+  opacity: 0;
+}
+
+/* 3 · our photo, inside the envelope: clipped to the envelope's sides and bottom, free to rise above it */
+.env-photo-clip {
+  z-index: 3;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-clip-path: inset(-130% 0.6% 0.9% 0.6%);
+  clip-path: inset(-130% 0.6% 0.9% 0.6%);
+}
+
+.env-photo-rise {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* photo shown at 0.90 x the envelope width (its cream border — like the mockup), centred, keeping its own
+   ~9.7° tilt (1.61° relative to the envelope). Risen, its centre sits on the hinge line: about half of it is
+   above the envelope and its bottom edge stays 17 src px behind the pocket. */
+.env-photo,
+.env-photo-shadow {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 100.798%;       /* 515 x 0.90 / 459.83 */
+  height: auto;
+  max-width: none;
+  transform: translate(-50%, -50%) rotate(-8.138deg);
+}
+
+/* its shadow (an image, see .booth-shadow): same centre, 113.981% of the photo's width */
+.env-photo-shadow {
+  width: 114.89%;
+}
+
+/* 4 · the envelope itself (wings + pocket; the opening is transparent). The image is counter-rotated so it
+   lands level inside the turned box — the two rotations cancel, so it is drawn unrotated and crisp. */
+.env-front {
+  z-index: 4;
+  top: 0;
+  left: 0;
+  width: 108.655%;
+  height: auto; /* the width/height attributes would otherwise pin the height */
+  transform-origin: 0 0;
+  transform: rotate(-8.138deg) translate(-8.831%, 0.116%);
+}
+
+/* its shadow (an image in the level frame, see .booth-shadow), just under it: it grounds the envelope on the page,
+   and the wings + pocket cast it onto the photo inside */
+.env-shadow {
+  z-index: 4;
+  top: -7.259%;
+  left: -7.296%;
+  width: 115.163%;
+  height: 121.367%;
+}
+
+/* 5 · on the pocket. The padding gives the script's overhanging strokes room inside the box, which is all
+   Safari draws while the note animates in (it is symmetric, so the centring is unchanged). */
+.env-note {
+  z-index: 6;
+  top: 74.5%;
+  left: 50.5%;
+  width: -webkit-max-content;
+  width: max-content;
+  margin: 0;
+  padding: 0.15em 0.4em;
+  font: 400 calc(var(--ew) * 0.083)/0.98 var(--font-hand);
+  color: var(--c-ink);
+  text-align: center;
+  white-space: nowrap;
+  transform: translate(-50%, -50%) rotate(-3.5deg);
+}
+
+/* ---- the photostrip, in front, leaning left */
+.stage-strip {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--sw) * 0.0525);
+  top: calc(var(--sw) * 0.06);
+  width: calc(var(--sw) * 0.225);
+  height: calc(var(--sw) * 0.931195); /* 0.225 x 411.34 / 99.39 */
+  transform: rotate(-7deg);
+}
+
+.stage-strip .strip {
+  width: 100%;
+  height: 100%;
+  box-shadow:
+    0 1px 2px rgb(var(--c-shadow-rgb) / 0.3),
+    0 12px 20px -6px rgb(var(--c-shadow-rgb) / 0.38);
+}
+
+/* ---- below the stage: spaced snugly enough that on a typical phone (393 x 659) the countdown, labels included, is
+   on the first screen */
+.invitation-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* The date in plain type too, for anyone who'd rather not decode the script (screen readers get it in the heading,
+   so this line is aria-hidden). Full width (stretch), because a size container can't shrink to fit its text. */
+.date-line {
+  align-self: stretch;
+  container-type: inline-size;
+  margin: 0 0 8px;
+  font: 600 13px/1.3 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  text-wrap: balance;
+}
+
+/* When it can't fit on one line (big zoom, large text), its parts stack like a printed card -- SUNDAY / APRIL 18 /
+   2027 -- rather than leave a dot at the end of a line. The container query goes by the line's own font size
+   (one line takes 16.7em), so it follows enlarged text too; the media query covers zoom where container queries
+   aren't supported (iOS 15, Chrome 104 and older). */
+@media (max-width: 16em) {
+  .date-line span:not(.dl-sep) {
+    display: block;
+  }
+
+  .date-line .dl-sep {
+    display: none;
+  }
+}
+
+@container (max-width: 17em) {
+  .date-line span:not(.dl-sep) {
+    display: block;
+  }
+
+  .date-line .dl-sep {
+    display: none;
+  }
+}
+
+.invitation-cta {
+  margin-top: 14px;
+}
+
+.countdown {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 16px;
+}
+
+.countdown-caption {
+  margin: 0 0 7px;
+  font: 500 11px/1.3 var(--font-sans);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  text-wrap: balance;
+}
+
+/* Days + Hours and Minutes + Seconds are pairs: four equal tiles in a row, or -- when they can't fit (a narrow
+   window, big zoom or large text) -- one pair under the other, so a number or label never spills out of its tile.
+   (fit-content: a pair is as wide as its two tiles, unless even that is wider than the row; then its tiles stack.) */
+.countdown-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cd-pair {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: -webkit-max-content;
+  min-width: max-content;
+  min-width: -webkit-fit-content;
+  min-width: fit-content;
+}
+
+.cd-tile {
+  flex: 1 1 0;
+  min-width: -webkit-max-content;
+  min-width: max-content;
+  padding: 8px 2px 7px;
+  background: rgba(255, 255, 255, 0.34);
+  border: 1px solid var(--c-hairline);
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+
+.cd-num {
+  display: block;
+  font: 600 27px/1.1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--c-ink);
+}
+
+.cd-label {
+  display: block;
+  margin-top: 3px;
+  font: 500 clamp(9.5px, 2.75vw, 11px)/1.2 var(--font-sans);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  opacity: 0.85;
+}
+
+.countdown-done {
+  margin: 4px 0 0;
+  font: 400 40px/1.1 var(--font-script);
+  word-spacing: 0.1em;
+  color: var(--c-ink);
+}
+
+.countdown.is-done .countdown-tiles {
+  display: none;
+}
+
+/* A little snugger on shorter phones, so on a typical one (393 x 659) the whole countdown, labels included, still
+   fits on the first screen. */
+@media (max-height: 700px) {
+  .date-line {
+    margin-bottom: 6px;
+  }
+
+  .invitation-cta {
+    margin-top: 12px;
+  }
+
+  .countdown {
+    margin-top: 10px;
+  }
+
+  .countdown-caption {
+    margin-bottom: 5px;
+  }
+}
+
+/* ---- phones held sideways (about 734 x 343): size from the height instead, so the printing strip and the
+   opening envelope play on screen; the rest follows below. (After the short-screen rule, which also applies.) */
+@media (orientation: landscape) and (max-height: 500px) {
+  .screen--home {
+    --names-size: clamp(28px, 10vh, 72px);
+  }
+
+  .booth {
+    --booth-h: clamp(160px, calc(100vh - 58px - var(--names-size) * 2.04), 470px);
+  }
+
+  .stage {
+    --sw: min(calc(100vw - 24px), 460px, calc(88vh / 1.125));
+  }
+}
+
+@supports (height: 100svh) {
+  @media (orientation: landscape) and (max-height: 500px) {
+    .screen--home {
+      --names-size: clamp(28px, 10svh, 72px);
+    }
+
+    .booth {
+      --booth-h: clamp(160px, calc(100svh - 58px - var(--names-size) * 2.04), 470px);
+    }
+
+    .stage {
+      --sw: min(calc(100vw - 24px), 460px, calc(88svh / 1.125));
+    }
+  }
+}
+
+/* (the little tick on a changing digit is played by countdown.js) */
+
+/* ---------------------------------------------------------------------- page 2 · choreography */
+
+@media (prefers-reduced-motion: no-preference) {
+  .play .env-pos {
+    animation: env-in 0.75s var(--ease-out) backwards;
+  }
+
+  /* easing per keyframe (see strip-in) */
+  .play .stage-strip {
+    animation: strip-in 0.95s linear 0.25s backwards;
+  }
+
+  /* the flap swings open toward us; it is edge-on at exactly 50%, where it drops behind the photo */
+  .play .env-flap {
+    animation: flap-open 0.8s linear 0.85s backwards;
+  }
+
+  .play .env-flap-wrap {
+    animation: flap-z 0.8s linear 0.85s backwards;
+  }
+
+  .play .env-flap-front {
+    animation: face-front 0.8s linear 0.85s backwards;
+  }
+
+  .play .env-flap-back {
+    animation: face-back 0.8s linear 0.85s backwards;
+  }
+
+  .play .env-seal {
+    animation: face-front 0.8s linear 0.85s backwards;
+  }
+
+  .play .env-flap-shadow {
+    animation: flap-shadow 0.4s ease-out 0.85s backwards;
+  }
+
+  /* starts while the flap settles (easing per keyframe, see photo-rise) */
+  .play .env-photo-rise {
+    animation: photo-rise 0.95s linear 1.55s backwards;
+  }
+
+  .play .sd-line--1 {
+    animation: wipe-in 0.62s cubic-bezier(0.45, 0.1, 0.4, 1) 2.4s backwards;
+  }
+
+  .play .sd-line--2 {
+    animation: wipe-in 0.42s cubic-bezier(0.45, 0.1, 0.4, 1) 2.88s backwards;
+  }
+
+  .play .sd-line--3 {
+    animation: wipe-in 0.62s cubic-bezier(0.45, 0.1, 0.4, 1) 3.12s backwards;
+  }
+
+  .play .env-note {
+    animation: note-in 0.9s var(--ease-out) 2.7s backwards;
+  }
+
+  .play .date-line {
+    animation: fade-up 0.6s var(--ease-out) 2.48s backwards;
+  }
+
+  .play .invitation-body .lede {
+    animation: fade-up 0.6s var(--ease-out) 2.6s backwards;
+  }
+
+  .play .invitation-cta {
+    animation: fade-up 0.6s var(--ease-out) 2.72s backwards;
+  }
+
+  .play .countdown {
+    animation: fade-up 0.6s var(--ease-out) 2.88s backwards;
+  }
+
+  .play .invitation-body .back-link {
+    animation: fade-up 0.6s var(--ease-out) 3.04s backwards;
+  }
+}
+
+@keyframes env-in {
+  from { opacity: 0; transform: translateY(22px) rotate(-3deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* slides in, overshoots a little, then eases back (each segment starts and ends at rest: no kick) */
+@keyframes strip-in {
+  0%   { transform: translateX(calc(-50vw - 40%)) rotate(-24deg); animation-timing-function: cubic-bezier(0.25, 0.9, 0.3, 1); } /* just off-screen at any width */
+  72%  { transform: translateX(3%) rotate(-5.6deg); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  100% { transform: rotate(-7deg); }
+}
+
+/* the first half eases in softly enough to show movement right away; its end speed matches the second half's start */
+@keyframes flap-open {
+  0%   { transform: rotateX(0deg); animation-timing-function: cubic-bezier(0.42, 0.12, 0.82, 0.5); }
+  50%  { transform: rotateX(90deg); animation-timing-function: cubic-bezier(0.18, 0.5, 0.42, 1); }
+  100% { transform: rotateX(180deg); }
+}
+
+@keyframes flap-z {
+  0%, 49.9% { z-index: 7; }
+  50%, 100% { z-index: 2; }
+}
+
+@keyframes face-front {
+  0%, 49.9% { visibility: visible; }
+  50%, 100% { visibility: hidden; }
+}
+
+@keyframes face-back {
+  0%, 49.9% { visibility: hidden; }
+  50%, 100% { visibility: visible; }
+}
+
+@keyframes flap-shadow {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* drawn out of the envelope from rest, a touch too far, then eased back */
+@keyframes photo-rise {
+  0%   { transform: translateY(55.398%); animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1); }  /* tucked in: top-left corner 5 src px under the hinge */
+  80%  { transform: translateY(-1.1%); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes note-in {
+  from { opacity: 0; transform: translate(-50%, -38%) rotate(-3.5deg); }
+  to   { opacity: 1; transform: translate(-50%, -50%) rotate(-3.5deg); }
+}
+
+/* ============================================================================ page 3 · details */
+
+/* The title and tagline animate in; their inline padding (cancelled by the negative margin, so the lines break
+   exactly as before) gives the script's overhanging strokes room inside the box, which is all Safari draws while
+   an element animates. */
+.details-title {
+  margin: 4px -0.35em 0;
+  padding: 0 0.35em;
+  font: 400 clamp(52px, 16vw, 64px)/1.06 var(--font-script);
+  word-spacing: 0.14em;
+  color: var(--c-ink);
+}
+
+/* the illustration has empty margins top and bottom: show its 202 x 148 middle */
+.animals-wrap {
+  width: min(52%, 220px);
+  margin: 4px auto 0;
+}
+
+.animals {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 202 / 148;
+  object-fit: cover;
+  object-position: 50% 46%;
+}
+
+.details-tagline {
+  max-width: calc(340px + 0.7em);
+  margin: 12px -0.35em 0;
+  padding: 0 0.35em;
+  font: 400 clamp(25px, 7.8vw, 32px)/1.12 var(--font-script);  /* 25 px at 320: room either side, like the copy */
+  word-spacing: 0.06em;
+  color: var(--c-ink);
+  text-wrap: balance;
+}
+
+.details-lede {
+  max-width: 320px;
+  margin: 10px auto 22px;
+}
+
+/* ---------------------------------------------------------------------- page 3 · choreography */
+
+@media (prefers-reduced-motion: no-preference) {
+  .play .details-title {
+    animation: fade-down 0.7s var(--ease-out) backwards;
+  }
+
+  .play .animals-wrap {
+    animation: pop-in 0.7s var(--ease-spring) 0.2s backwards;
+  }
+
+  .play .animals {
+    animation: clink 0.7s ease-in-out 0.95s backwards;
+    transform-origin: 50% 85%;
+  }
+
+  .play .details-tagline {
+    animation: fade-up 0.7s var(--ease-out) 0.45s backwards;
+  }
+
+  .play .details-lede {
+    animation: fade-up 0.7s var(--ease-out) 0.55s backwards;
+  }
+
+  /* form.js starts the form's own entrance just after this one (it reads this animation-delay) */
+  .play .details-form {
+    animation: rise-in 0.75s var(--ease-out) 0.65s backwards;
+  }
+
+  .play .screen--details > .back-link {
+    animation: fade-up 0.6s var(--ease-out) 0.85s backwards;
+  }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.82); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes clink {
+  0%, 100% { transform: rotate(0); }
+  22% { transform: rotate(-2.2deg); }
+  48% { transform: rotate(1.8deg); }
+  72% { transform: rotate(-0.8deg); }
+}
+
+/* ============================================================================ shared keyframes */
+
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes wipe-in {
+  from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+  to   { -webkit-mask-position: 0 0; mask-position: 0 0; }
+}
+
+/* ======================================================================== reduced motion: end states */
+
+/* The intros above only exist for no-preference, so all that is left here is a gentle screen fade. */
+@media (prefers-reduced-motion: reduce) {
+  .js .screen {
+    transition-duration: 0.4s;
+  }
+
+  .js .screen.is-leaving {
+    transition-duration: 0.12s;
+  }
+}
+
+/* ================================================================================= no JavaScript */
+
+/* The card lives in <noscript>. If JavaScript is on but the app can't start (a script failed to load, or the
+   browser is too old for the site), the inline script in <head> copies it into the page. It must also look
+   right in those old browsers, so sizes come before the clamp() they don't understand. */
+.noscript-card {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: max(56px, env(safe-area-inset-top)) var(--gutter) 48px;
+  text-align: center;
+}
+
+.ns-names {
+  margin: 10px 0 0;
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: 52px;
+  font-size: clamp(44px, 14vw, 64px); /* no var() in here: in an old browser that would void the 52px too */
+  line-height: 1.05;
+  word-spacing: 0.12em;
+}
+
+.ns-names span {
+  display: block;
+}
+
+.ns-date {
+  margin: 22px 0 0;
+  font: 600 13px/1.7 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ns-note {
+  margin: 14px 0 0;
+  font: 400 26px/1.2 var(--font-hand);
+}
+
+.ns-hint {
+  margin: 26px 0 0;
+  font: 400 13px/1.55 var(--font-sans);
+  color: var(--c-ink-soft);
+  text-wrap: balance; /* (the hints' last words are also tied with no-break spaces, for older browsers) */
+}

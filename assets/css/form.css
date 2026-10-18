@@ -1,0 +1,852 @@
+/*
+ * Share Details form (page 3). Styles for assets/js/form.js, which renders into #details-form.
+ * Every class is prefixed `df-`. Colours, fonts and easing come from tokens.css, and buttons reuse
+ * the shared .btn / .btn-link. Load this file after tokens.css (and styles.css).
+ */
+
+.details-form {
+  position: relative;
+  width: 100%;
+}
+
+/* while the thank-you / "all set" card shows, page 3's own back link would just repeat the card's (form.js markDone) */
+.df-finished > .back-link {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- card */
+
+.df-card {
+  --df-field: rgb(255 255 255 / 0.88);
+
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 28px clamp(18px, 6.2vw, 32px) 24px;
+  color: var(--c-ink);
+  text-align: left;
+  background-color: rgba(249, 246, 240, 0.95); /* reply-card cream */
+  /* faint paper grain */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .19 0 0 0 0 .31 0 0 0 0 .37 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  border: 1px solid var(--c-hairline);
+  border-radius: 3px;
+}
+
+/* inner hairline frame, like a printed reply card */
+.df-card::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
+  border: 1px solid rgb(var(--c-accent-rgb) / 0.3);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* The soft drop shadow lives on its own layer: a fixed-size strip along the bottom edge (the only place it shows)
+   that simply moves while the card's height animates, instead of a 36px blur repainted on every frame. The strip
+   itself is transparent and an outer shadow only paints outside its box (below the card), so it can sit on top. */
+.df-card::after {
+  content: "";
+  position: absolute;
+  right: -1px; /* over the card's 1px border, so the shadow starts where the card ends */
+  bottom: -1px;
+  left: -1px;
+  height: 120px;
+  border-radius: inherit;
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.df-card [hidden] {
+  display: none !important;
+}
+
+/* double-tap guard (form.js lockInput): right after a step changes, taps can't reach the new step's controls */
+.df-locked .df-views {
+  pointer-events: none;
+}
+
+/* Swap containers bleed into the card padding so a sliding step is clipped near the inner frame,
+   not right at the text edge. */
+.df-views,
+.df-steps {
+  --df-bleed: 12px;
+  position: relative;
+  margin-right: calc(-1 * var(--df-bleed));
+  margin-left: calc(-1 * var(--df-bleed));
+  padding-right: var(--df-bleed);
+  padding-left: var(--df-bleed);
+}
+
+/* while a step slides, its container clips */
+.df-clip {
+  overflow: hidden;
+}
+
+/* outgoing panel keeps its place on top while it fades away */
+.df-leaving {
+  position: absolute;
+  top: 0;
+  right: var(--df-bleed, 0);
+  left: var(--df-bleed, 0);
+  pointer-events: none;
+}
+
+.df-form {
+  margin: 0;
+}
+
+/* nothing below a step's last field: a trailing margin would collapse out of the step normally but get trapped
+   (and so jump by its height) whenever the step clips during a swap or a reveal */
+.df-step > :last-child,
+.df-song > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------- progress */
+
+.df-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 16px;
+}
+
+.df-progress-label {
+  margin: 0;
+  font: 500 12px/1 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-ink-muted);
+}
+
+.df-dots {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.df-dots li {
+  width: 6px;
+  height: 6px;
+  margin: 0 3.5px;
+  border-radius: 3px;
+  background: var(--c-mist);
+  transition:
+    width 0.45s var(--ease-out),
+    margin 0.45s var(--ease-out),
+    opacity 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.df-dots li.is-done {
+  background: var(--c-accent);
+}
+
+.df-dots li.is-current {
+  width: 22px;
+  background: var(--c-ink);
+}
+
+.df-dots li.is-skipped {
+  width: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------- step text */
+
+.df-title {
+  margin: 0 0 18px;
+  font: 400 31px/1.12 var(--font-script);
+  word-spacing: 0.1em; /* Font 1's space is narrow; open it up like the page headings in styles.css */
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  color: var(--c-ink);
+}
+
+.df-title:focus,
+.df-done-title:focus {
+  outline: none;
+}
+
+.df-lede {
+  margin: -8px auto 18px;
+  max-width: 30em;
+  font: 400 14px/1.55 var(--font-sans);
+  text-align: center;
+  text-wrap: balance;
+  color: var(--c-ink-muted);
+}
+
+/* ---------------------------------------------------------------- fields */
+
+.df-field {
+  margin: 0 0 15px;
+}
+
+.df-label {
+  display: block;
+  margin: 0 0 7px;
+  font: 500 12px/1.35 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+}
+
+.df-optional {
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--c-ink-muted);
+}
+
+.df-input {
+  display: block;
+  width: 100%;
+  height: 48px;
+  margin: 0;
+  padding: 0 14px;
+  font: 400 16px/1.25 var(--font-sans);   /* 16px: no zoom-on-focus in iOS Safari */
+  letter-spacing: 0.01em;
+  color: var(--c-ink);
+  background: var(--df-field);
+  border: 1px solid var(--c-line);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 2px rgb(var(--c-ink-rgb) / 0.07);
+  outline: 2px solid transparent;          /* visible in forced-colors mode */
+  outline-offset: 1px;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.df-input::placeholder {
+  color: rgb(var(--c-ink-rgb) / 0.45);
+  opacity: 1;
+}
+
+.df-input:focus {
+  background: var(--c-white);
+  border-color: var(--c-ink);
+  box-shadow: var(--ring);
+}
+
+.df-input[aria-invalid="true"] {
+  border-color: var(--c-error);
+}
+
+.df-input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgb(var(--c-error-rgb) / 0.16);
+}
+
+.df-input:-webkit-autofill,
+.df-input:-webkit-autofill:hover {
+  -webkit-text-fill-color: var(--c-ink);
+  box-shadow: 0 0 0 1000px var(--c-white) inset;
+  caret-color: var(--c-ink);
+}
+
+.df-input:-webkit-autofill:focus {
+  box-shadow: 0 0 0 1000px var(--c-white) inset, var(--ring);
+}
+
+.df-help {
+  margin: 7px 0 0;
+  font: 400 14px/1.5 var(--font-sans);
+  color: var(--c-ink-muted);
+}
+
+.df-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 8px 0 0;
+  font: 500 14px/1.45 var(--font-sans);
+  color: var(--c-error);
+}
+
+.df-error-text {
+  text-wrap: balance;
+}
+
+.df-error-icon {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin-top: 2.5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.df-error-icon .df-dot {
+  fill: currentColor;
+}
+
+.df-error.is-new {
+  animation: df-error-in 0.32s var(--ease-out);
+}
+
+/* State + ZIP side by side; the inputs stay aligned even if one label wraps, and an error takes the full width
+   underneath (the ZIP one is a whole sentence) */
+.df-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 12px;
+  margin: 0 0 15px;
+}
+
+.df-pair > .df-field {
+  display: contents;
+}
+
+.df-pair .df-label {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+}
+
+.df-pair .df-input {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.df-pair > .df-field:last-child > .df-label,
+.df-pair > .df-field:last-child > .df-input {
+  grid-column: 2;
+}
+
+.df-pair .df-error {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+.df-pair > .df-field:last-child > .df-error {
+  grid-row: 4;
+}
+
+/* outside the US (form.js updatePostalMode), "State / Province (optional)" and the postal code each get a full row,
+   so the longer label never breaks as "STATE /" over "PROVINCE" in a half-width column */
+.df-pair.df-stack {
+  display: block;
+}
+
+.df-pair.df-stack > .df-field {
+  display: block;
+  margin: 0 0 15px;
+}
+
+.df-pair.df-stack > .df-field:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------- "can't make it" checkbox card */
+
+.df-check {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 66px;
+  padding: 16px 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* the real checkbox covers the whole card: tap anywhere, keyboard + screen readers work natively */
+.df-check-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.df-check-frame {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  background: var(--df-field);
+  border: 1px solid var(--c-line);
+  border-radius: 2px;
+  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.df-check-box,
+.df-check-text {
+  position: relative;
+  z-index: 1;
+}
+
+.df-check-box {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  background: var(--c-white);
+  border: 1.5px solid var(--c-line);
+  border-radius: 2px;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s var(--ease-spring);
+}
+
+.df-check-box svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--c-white);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  transition: stroke-dashoffset 0.35s var(--ease-out) 0.05s;
+}
+
+.df-check-text {
+  font: 500 15px/1.4 var(--font-sans);
+  text-wrap: balance;
+  color: var(--c-ink);
+}
+
+.df-check-input:checked ~ .df-check-frame {
+  background: var(--c-white);
+  border-color: var(--c-ink);
+  box-shadow: inset 0 0 0 1px var(--c-ink);
+}
+
+.df-check-input:checked ~ .df-check-box {
+  background: var(--c-ink);
+  border-color: var(--c-ink);
+}
+
+.df-check-input:checked ~ .df-check-box svg {
+  stroke-dashoffset: 0;
+}
+
+.df-check-input:active ~ .df-check-box {
+  transform: scale(0.92);
+}
+
+.df-check-input:focus-visible ~ .df-check-frame {
+  outline: 2px solid var(--c-ink);
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------- reveals */
+
+.df-reveal.is-animating {
+  overflow: hidden;
+}
+
+.df-honesty {
+  margin: 0;
+  padding: 20px 6px 4px;
+  font: 400 26px/1.2 var(--font-script);
+  word-spacing: 0.1em;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--c-ink);
+}
+
+/* the next step, spelled out: the message sounds like an ending, but the reply still needs sending */
+.df-honesty-next {
+  margin: 6px 0 0;
+  font: 400 14px/1.5 var(--font-sans);
+  text-align: center;
+  color: var(--c-ink-muted);
+}
+
+/* ---------------------------------------------------------------- Yes / No */
+
+.df-seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 5px;
+  background: var(--df-field);
+  border: 1px solid var(--c-line);
+  border-radius: 3px;
+  transition: border-color 0.2s ease;
+}
+
+.df-seg[aria-invalid="true"] {
+  border-color: var(--c-error);
+}
+
+.df-seg-opt {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.df-seg-opt input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.df-seg-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border-radius: 2px;
+  font: 600 13px/1 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.df-seg-opt input:checked + .df-seg-face {
+  background: var(--c-accent);
+  color: var(--c-white);
+  box-shadow: 0 1px 2px rgb(var(--c-ink-rgb) / 0.14), 0 6px 14px -8px rgb(var(--c-ink-rgb) / 0.6);
+}
+
+.df-seg-opt input:focus-visible + .df-seg-face {
+  outline: 2px solid var(--c-ink);
+  outline-offset: 2px;
+}
+
+.df-song {
+  padding-top: 24px;
+}
+
+.df-subtitle {
+  margin: 0 0 14px;
+  font: 400 26px/1.15 var(--font-script);
+  word-spacing: 0.1em;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--c-ink);
+}
+
+.df-song .df-lede {
+  margin-top: -10px;
+}
+
+/* ---------------------------------------------------------------- submit error */
+
+.df-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 12px 14px;
+  color: var(--c-error);
+  background: rgb(var(--c-error-rgb) / 0.06);
+  border: 1px solid rgb(var(--c-error-rgb) / 0.28);
+  border-left-width: 3px;
+  border-radius: 2px;
+  animation: df-error-in 0.35s var(--ease-out);
+}
+
+.df-alert .df-error-icon {
+  margin-top: 3px;
+}
+
+.df-alert-text {
+  margin: 0;
+  font: 500 14px/1.5 var(--font-sans);
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------- actions */
+
+/* Back + Continue on one row; when they don't fit (big page zoom or text), Continue takes a full-width row of its
+   own above Back */
+.df-actions {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 22px;
+  scroll-margin: 12px 0;
+}
+
+.df-next {
+  flex: 1 1 auto;
+  min-width: min-content; /* never narrower than its label */
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.df-next.is-busy,
+.df-next.is-busy:hover {
+  opacity: 0.88;
+  background: var(--c-accent);
+  cursor: progress;
+}
+
+.df-back {
+  flex: none;
+  padding-left: 6px;
+  padding-right: 10px;
+}
+
+.df-back[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.df-icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.df-spinner {
+  display: none;
+  flex: none;
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgb(255 255 255 / 0.42);
+  border-top-color: var(--c-white);
+  border-radius: 50%;
+  animation: df-spin 0.75s linear infinite;
+}
+
+.df-next.is-busy .df-spinner {
+  display: inline-block;
+}
+
+/* ---------------------------------------------------------------- done / already-replied */
+
+.df-done {
+  padding: 4px 0 0;
+  text-align: center;
+}
+
+.df-flourish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 2px auto 10px;
+  color: var(--c-accent);
+}
+
+.df-flourish span {
+  width: 46px;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(var(--c-accent-rgb) / 0), rgb(var(--c-accent-rgb) / 0.9));
+}
+
+.df-flourish span:last-child {
+  transform: scaleX(-1);
+}
+
+.df-flourish svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+.df-done-title {
+  margin: 0 0 12px;
+  font: 400 clamp(36px, 10.5vw, 46px)/1.08 var(--font-script);
+  word-spacing: 0.12em; /* as "You're Invited", which is the same size */
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  color: var(--c-ink);
+}
+
+/* "the Cappuccio Family!" (form.js setTitle) moves down whole instead of leaving "the" at the end of a line, and
+   still wraps inside when it's wider than the card */
+.df-family {
+  display: inline-block;
+}
+
+.df-done-text {
+  max-width: 30ch;
+  margin: 0 auto;
+  font: 400 14.5px/1.6 var(--font-sans);
+  text-wrap: pretty;
+  color: var(--c-ink);
+}
+
+.df-note {
+  max-width: 34ch;
+  margin: 18px auto 0;
+  padding: 10px 14px;
+  font: italic 400 12px/1.5 var(--font-sans);
+  text-wrap: balance;
+  color: var(--c-ink-muted);
+  border: 1px dashed rgb(var(--c-accent-rgb) / 0.8);
+  border-radius: 2px;
+}
+
+.df-done-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-top: 18px;
+}
+
+/* ---------------------------------------------------------------- celebration burst */
+
+.df-burst {
+  --df-cream: #f3ede3;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.df-burst > * {
+  position: absolute;
+  display: block;
+  will-change: transform, opacity;
+}
+
+.df-burst svg {
+  overflow: visible;
+}
+
+/* ---------------------------------------------------------------- very narrow (big page zoom, Display Zoom) */
+
+@media (max-width: 300px) {
+  .df-pair {
+    display: block;
+  }
+
+  .df-pair > .df-field {
+    display: block;
+    margin: 0 0 15px;
+  }
+
+  .df-pair > .df-field:last-child {
+    margin-bottom: 0;
+  }
+
+  .df-check {
+    gap: 10px;
+    padding: 14px 12px;
+  }
+
+  /* the retry message wraps under its icon instead of running down a narrow column beside it */
+  .df-alert {
+    display: block;
+  }
+
+  .df-alert .df-error-icon {
+    float: left;
+    margin: 3px 8px 0 0;
+  }
+}
+
+/* ---------------------------------------------------------------- hover (mouse / trackpad only) */
+
+@media (hover: hover) {
+  .df-input:hover:not(:focus):not([aria-invalid="true"]) {
+    border-color: var(--c-accent-dark);
+  }
+
+  .df-check:hover .df-check-input:not(:checked) ~ .df-check-frame {
+    border-color: var(--c-accent-dark);
+  }
+
+  .df-seg-opt:hover input:not(:checked) + .df-seg-face {
+    background: rgb(var(--c-mist-rgb) / 0.28);
+  }
+}
+
+/* ---------------------------------------------------------------- keyframes */
+
+@keyframes df-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes df-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes df-error-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .df-error.is-new,
+  .df-alert {
+    animation: df-fade-in 0.2s ease;
+  }
+
+  .df-spinner {
+    animation: df-pulse 1.4s ease-in-out infinite;
+  }
+
+  .df-dots li,
+  .df-check-box,
+  .df-check-box svg {
+    transition-property: background-color, border-color, opacity;
+  }
+
+  .df-check-box svg {
+    transition: none;
+  }
+}
+
+@keyframes df-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (forced-colors: active) {
+  .df-check-input:checked ~ .df-check-box,
+  .df-seg-opt input:checked + .df-seg-face {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .df-check-box svg {
+    stroke: HighlightText;
+  }
+}

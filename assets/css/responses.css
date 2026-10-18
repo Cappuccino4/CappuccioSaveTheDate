@@ -1,0 +1,893 @@
+/*
+ * Guest responses page (responses.html) — the couple's private view of every reply.
+ * Loaded after tokens.css. Every class is prefixed `rs-`; colours, fonts and easing come from tokens.css
+ * (tints are written rgb(var(--c-ink-rgb) / 0.4) so a palette change carries over).
+ * Mobile first; on wide screens the list becomes a 2–3 column grid. Hover styles only apply with a real
+ * pointer (@media (hover: hover)): on a phone a tapped tile or link would otherwise keep its hover look.
+ */
+
+:root {
+  --rs-paper: rgba(247, 245, 241, 0.86);   /* --c-paper, slightly see-through */
+}
+
+.rs-page [hidden] {
+  display: none !important;
+}
+
+.rs-page {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding:
+    max(30px, calc(env(safe-area-inset-top) + 18px))
+    max(var(--gutter), env(safe-area-inset-right))
+    max(48px, calc(env(safe-area-inset-bottom) + 32px))
+    max(var(--gutter), env(safe-area-inset-left));
+}
+
+/* ---------------------------------------------------------------- header */
+
+.rs-header {
+  margin: 0 auto 26px;
+  text-align: center;
+}
+
+.rs-eyebrow {
+  margin: 0 0 2px;
+  font: 600 12px/1.4 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.rs-title {
+  margin: 0;
+  font: 400 clamp(50px, 15vw, 78px)/1.06 var(--font-script);
+  word-spacing: 0.12em;                     /* Font 1's own space is very narrow, as on the site */
+  overflow-wrap: break-word;
+}
+
+.rs-date {
+  margin: 2px 0 0;
+  font: 400 clamp(16px, 4.4vw, 19px)/1.7 var(--font-hand);
+}
+
+/* ---------------------------------------------------------------- cards & panels */
+
+.rs-card {
+  position: relative;
+  background: var(--rs-paper);
+  border: 1px solid var(--c-hairline);
+  border-radius: 3px;
+  box-shadow: var(--shadow-card);
+}
+
+.rs-panel {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 30px clamp(18px, 6.2vw, 32px) 28px;
+}
+
+/* inner hairline frame, like a printed reply card */
+.rs-panel::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
+  border: 1px solid rgb(var(--c-accent-rgb) / 0.3);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.rs-panel-title {
+  margin: 0 0 8px;
+  font: 400 34px/1.15 var(--font-script);
+  word-spacing: 0.12em;
+  text-align: center;
+}
+
+.rs-text {
+  margin: 0 0 20px;
+  font: 400 14px/1.6 var(--font-sans);
+  color: var(--c-ink-muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.rs-small {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* a link standing on its own line: 44px tall to tap, without moving anything (padding cancelled by margins) */
+.rs-small .rs-link {
+  display: inline-block;
+  padding: 12px 8px;
+  margin: -12px -8px;
+}
+
+.rs-steps {
+  margin: 0 0 20px;
+  padding: 0 0 0 22px;
+  font: 400 14px/1.6 var(--font-sans);
+}
+
+.rs-steps li + li {
+  margin-top: 8px;
+}
+
+.rs-page code {
+  padding: 1px 5px;
+  font: 500 0.88em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--c-ink);
+  background: rgb(var(--c-accent-rgb) / 0.18);
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+}
+
+.rs-link {
+  color: var(--c-ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--c-ink-rgb) / 0.4);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .rs-link:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+.rs-link:focus-visible {
+  outline: 2px solid var(--c-ink);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------- passphrase form */
+
+.rs-login-form {
+  margin: 0;
+}
+
+.rs-label {
+  display: block;
+  margin: 0 0 7px;
+  font: 500 12px/1.35 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.rs-input {
+  display: block;
+  width: 100%;
+  height: 50px;
+  margin: 0;
+  padding: 0 14px;
+  font: 400 16px/1.25 var(--font-sans);    /* 16px: no zoom-on-focus in iOS Safari */
+  color: var(--c-ink);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--c-line);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 2px rgb(var(--c-ink-rgb) / 0.07);
+  outline: 2px solid transparent;           /* still visible in forced-colors mode */
+  outline-offset: 1px;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.rs-input::placeholder {
+  color: rgb(var(--c-ink-rgb) / 0.52);
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .rs-input:hover {
+    border-color: var(--c-accent-dark);
+  }
+}
+
+.rs-input:focus {
+  background: var(--c-white);
+  border-color: var(--c-ink);
+  box-shadow: var(--ring);
+}
+
+/* Keychain / password-manager fill: keep the page's own white field instead of the browser's tint */
+.rs-input:-webkit-autofill,
+.rs-input:-webkit-autofill:hover {
+  -webkit-text-fill-color: var(--c-ink);
+  box-shadow: 0 0 0 1000px var(--c-white) inset;
+  caret-color: var(--c-ink);
+}
+
+.rs-input:-webkit-autofill:focus {
+  box-shadow: 0 0 0 1000px var(--c-white) inset, var(--ring);
+}
+
+.rs-input[aria-invalid="true"] {
+  border-color: var(--c-error);
+}
+
+.rs-input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgb(var(--c-error-rgb) / 0.16);
+}
+
+.rs-input[readonly] {
+  opacity: 0.7;
+}
+
+.rs-pass {
+  position: relative;
+}
+
+.rs-pass .rs-input {
+  padding-right: 78px;
+}
+
+.rs-reveal {
+  position: absolute;
+  top: 3px;                                 /* 44px tall inside the 50px field */
+  right: 3px;
+  bottom: 3px;
+  min-width: 66px;
+  margin: 0;
+  padding: 0 12px;
+  font: 500 11.5px/1 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+}
+
+@media (hover: hover) {
+  .rs-reveal:hover {
+    background: rgb(var(--c-accent-rgb) / 0.14);
+  }
+}
+
+.rs-reveal:focus-visible {
+  outline: 2px solid var(--c-ink);
+  outline-offset: -2px;
+}
+
+.rs-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 10px 0 0;
+  font: 500 13px/1.5 var(--font-sans);
+  color: var(--c-error);
+  text-align: left;
+}
+
+.rs-error-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.rs-error-icon .rs-dot {
+  fill: currentColor;
+}
+
+.rs-submit {
+  width: 100%;
+  margin-top: 22px;
+}
+
+.rs-spinner {
+  display: none;
+  flex: none;
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: var(--c-white);
+  border-radius: 50%;
+  animation: rs-spin 0.8s linear infinite;
+}
+
+.rs-submit.is-busy .rs-spinner {
+  display: inline-block;
+}
+
+@keyframes rs-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------------------------------------------------------------- dashboard: top bar, stats */
+
+.rs-dash:focus,
+.rs-dash h2:focus {
+  outline: none;
+}
+
+.rs-demo {
+  max-width: 560px;
+  margin: 0 auto 18px;
+  padding: 10px 14px;
+  font: 500 13px/1.45 var(--font-sans);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px dashed var(--c-accent);
+  border-radius: 3px;
+}
+
+.rs-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.rs-updated {
+  margin: 0;
+  font: 500 11.5px/1.4 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-ink-muted);
+}
+
+.rs-topbar-actions {
+  display: flex;
+  margin-right: -12px;
+}
+
+.rs-topbar-actions .btn-link {
+  gap: 7px;
+  padding: 10px 12px;
+}
+
+.rs-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rs-refresh.is-busy .rs-icon {
+  animation: rs-spin 0.9s linear infinite;
+}
+
+.rs-refresh[disabled] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.rs-banner {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgb(var(--c-error-rgb) / 0.35);
+  border-radius: 3px;
+}
+
+/* "This page shows only the last 2,000 rows…" (calm, not an error) */
+.rs-notice {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  font: 500 13px/1.5 var(--font-sans);
+  text-align: center;
+  text-wrap: pretty;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--c-hairline);
+  border-radius: 3px;
+}
+
+/* The four totals are also the filters (tap one to show just those replies). */
+.rs-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.rs-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;      /* numbers line up even when a label wraps */
+  gap: 6px;
+  min-width: 0;
+  min-height: 74px;
+  margin: 0;
+  padding: 14px 4px 10px;
+  font: inherit;
+  text-align: center;
+  color: var(--c-ink);
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid var(--c-hairline);
+  border-radius: 3px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .rs-stat:hover {
+    border-color: var(--c-accent);
+    background: rgba(255, 255, 255, 0.62);
+  }
+}
+
+.rs-stat:active {
+  transform: scale(0.98);
+}
+
+.rs-stat:focus-visible {
+  outline: 2px solid var(--c-ink);
+  outline-offset: 2px;
+}
+
+.rs-stat[aria-pressed="true"] {
+  color: var(--c-white);
+  background: var(--c-ink);
+  border-color: var(--c-ink);
+}
+
+.rs-stat-num {
+  font: 600 26px/1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.rs-stat-label {
+  font: 500 9.5px/1.25 var(--font-sans);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* ---------------------------------------------------------------- dashboard: search, sort */
+
+.rs-search-wrap {
+  position: relative;
+  margin: 0 0 12px;
+}
+
+.rs-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  fill: none;
+  stroke: var(--c-ink-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.rs-search {
+  padding-left: 44px;
+}
+
+.rs-search::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+/* The real <select> sits invisibly on top (16px, so iOS won't zoom); the pill underneath shows the choice. */
+.rs-sort-wrap {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.rs-sort-face {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 34px 0 15px;
+  font: 500 11.5px/1 var(--font-sans);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--c-ink);
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--c-hairline);
+  border-radius: 999px;
+  /* the arrow's colour (%2331505e = --c-ink) is spelled out: CSS variables don't reach inside data: images */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2331505e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 11px 7px;
+}
+
+.rs-sort {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  font-size: 16px;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+@media (hover: hover) {
+  .rs-sort-wrap:hover .rs-sort-face {
+    border-color: var(--c-accent);
+  }
+}
+
+.rs-sort-wrap:focus-within .rs-sort-face {
+  outline: 2px solid var(--c-ink);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- dashboard: count, sort, download */
+
+.rs-listbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.rs-count {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font: 500 13px/1.4 var(--font-sans);
+  color: var(--c-ink-muted);
+}
+
+.rs-download {
+  flex: 1 1 100%;                   /* full width on phones */
+  padding: 14px 24px;
+}
+
+.rs-download .rs-icon {
+  stroke-width: 1.8;
+}
+
+.rs-download-note {
+  flex: 1 1 100%;
+  margin: -4px 0 0;
+  font: 400 12px/1.4 var(--font-sans);
+  color: var(--c-ink-muted);
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- dashboard: reply cards */
+
+.rs-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rs-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 16px 18px 10px;
+  background: var(--rs-paper);
+  border: 1px solid var(--c-hairline);
+  border-radius: 3px;
+  box-shadow: 0 1px 1px rgb(var(--c-ink-rgb) / 0.04), 0 12px 24px -20px rgb(var(--c-ink-rgb) / 0.5);
+}
+
+/* Cards rise in when the list loads or refreshes — not on every search keystroke. */
+.rs-list.is-entering .rs-item {
+  animation: rs-rise 0.45s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+
+@keyframes rs-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.rs-item-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rs-name {
+  min-width: 0;
+  margin: 0;
+  font: 600 16px/1.35 var(--font-sans);
+  overflow-wrap: anywhere;
+}
+
+.rs-badges {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 52%;
+  padding-top: 1px;
+}
+
+.rs-badge {
+  display: inline-block;
+  padding: 5px 9px 4px;
+  font: 600 9.5px/1.15 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--c-ink);
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+
+.rs-badge--cant {
+  color: var(--c-ink-muted);
+  background: transparent;
+  border-color: var(--c-accent);
+  border-style: dashed;
+}
+
+.rs-badge--dup {
+  color: var(--c-error);
+  background: rgb(var(--c-error-rgb) / 0.06);
+  border-color: rgb(var(--c-error-rgb) / 0.42);
+  cursor: help;
+}
+
+.rs-note {
+  margin: 0;
+  font: italic 400 14px/1.5 var(--font-sans);
+  color: var(--c-ink-muted);
+}
+
+.rs-address {
+  margin: 0;
+  font: 400 14.5px/1.5 var(--font-sans);
+  overflow-wrap: anywhere;
+}
+
+.rs-address span {
+  display: block;
+}
+
+.rs-details {
+  display: grid;
+  grid-template-columns: minmax(86px, max-content) minmax(0, 1fr);  /* labels line up across cards */
+  align-items: baseline;
+  gap: 3px 12px;
+  margin: 0;
+  font: 400 13.5px/1.5 var(--font-sans);
+}
+
+.rs-details dt {
+  font: 500 10.5px/1.5 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-ink-muted);
+}
+
+.rs-details dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.rs-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 46px;
+  margin-top: auto;
+  padding-top: 6px;
+  font: 400 12px/1.4 var(--font-sans);
+  color: var(--c-ink-muted);
+  border-top: 1px solid rgb(var(--c-mist-rgb) / 0.75);
+}
+
+.rs-copy {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;                 /* easy to tap; the -2px margins keep the card's footer as tall as before */
+  margin: -2px -10px -2px 0;
+  padding: 0 10px;
+  font: 500 11px/1 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  background: none;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+}
+
+.rs-copy svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (hover: hover) {
+  .rs-copy:hover span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.rs-copy:focus-visible {
+  outline: 2px solid var(--c-ink);
+  outline-offset: 1px;
+}
+
+.rs-copy.is-done svg {
+  stroke-width: 2;
+}
+
+/* ---------------------------------------------------------------- empty state, footer */
+
+.rs-empty {
+  max-width: 440px;
+  margin: 4px auto 0;
+  padding: 28px 22px 22px;
+  text-align: center;
+}
+
+.rs-empty-title {
+  margin: 0 0 6px;
+  font: 400 32px/1.2 var(--font-script);
+  word-spacing: 0.12em;
+}
+
+.rs-empty .rs-text {
+  margin-bottom: 8px;
+}
+
+.rs-foot {
+  max-width: 34em;
+  margin: 30px auto 0;
+  font: 400 12.5px/1.6 var(--font-sans);
+  color: var(--c-ink-muted);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.rs-foot .rs-link {
+  display: block;
+  width: max-content;
+  padding: 12px 8px;                /* 44px tall to tap; the margins below cancel it, so nothing moves */
+  margin: -4px auto -12px;
+  font-size: 13px;
+}
+
+.rs-offscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rs-noscript {
+  max-width: 440px;
+  margin: 0 auto 40px;
+  padding: 0 var(--gutter);
+  font: 400 14px/1.6 var(--font-sans);
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- wider screens */
+
+@media (max-width: 359px) {
+  .rs-updated {
+    letter-spacing: 0.06em;
+  }
+
+  .rs-topbar-actions .btn-link {
+    padding: 10px 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .rs-topbar-actions {
+    margin-right: -8px;
+  }
+}
+
+@media (min-width: 360px) {
+  .rs-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 640px) {
+  .rs-stats {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .rs-stat {
+    min-height: 84px;
+  }
+
+  .rs-stat-num {
+    font-size: 30px;
+  }
+
+  .rs-stat-label {
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+  }
+
+  .rs-download {
+    flex: none;
+  }
+
+  .rs-download-note {
+    margin-top: -6px;
+    text-align: right;
+  }
+}
+
+@media (min-width: 760px) {
+  .rs-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (min-width: 1040px) {
+  .rs-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-list.is-entering .rs-item {
+    animation: none;
+  }
+
+  .rs-spinner,
+  .rs-refresh.is-busy .rs-icon {
+    animation-duration: 2s;
+  }
+}

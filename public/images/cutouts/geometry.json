@@ -1,0 +1,324 @@
+{
+  "generated_by": "tools/process-images.py",
+  "units": "source pixels, image space",
+  "holder": {
+    "size": [
+      260,
+      626
+    ],
+    "outline_quad": [
+      [
+        0.97,
+        1.15
+      ],
+      [
+        258.67,
+        2.66
+      ],
+      [
+        257.87,
+        625.36
+      ],
+      [
+        0.29,
+        625.2
+      ]
+    ],
+    "tray_opening": {
+      "x0": 43,
+      "x1": 217,
+      "y0": 44,
+      "y1": 580
+    },
+    "slot_line_y": 44,
+    "floor_line_y": 541,
+    "back_wall_x": [
+      43,
+      198
+    ],
+    "note": "image-space px. Strip prints from slot_line_y down; keep its bottom near floor_line_y.",
+    "shadow": {
+      "image": "holder-shadow.webp",
+      "size": [
+        395,
+        760
+      ],
+      "holder_at": [
+        68,
+        44
+      ],
+      "css_pct_of_holder": {
+        "left": -26.154,
+        "top": -7.029,
+        "width": 151.923,
+        "height": 121.406
+      },
+      "css_px_per_src_px": 0.55099,
+      "drop_shadows_css_px": [
+        [
+          2,
+          2,
+          0.16
+        ],
+        [
+          12,
+          16,
+          0.2
+        ]
+      ],
+      "colour": [
+        31,
+        52,
+        64
+      ]
+    }
+  },
+  "strip": {
+    "size": [
+      115,
+      419
+    ],
+    "content_rect": {
+      "x": 7.41,
+      "y": 7.38,
+      "w": 99.39,
+      "h": 411.34
+    },
+    "separators_y": [
+      [
+        109,
+        112
+      ],
+      [
+        209,
+        213
+      ],
+      [
+        311,
+        313
+      ]
+    ],
+    "note": "image-space px; content_rect = the strip itself (the rest of the image is transparent)."
+  },
+  "photo": {
+    "size": [
+      515,
+      435
+    ],
+    "tilt_deg": 9.748,
+    "outer_quad": [
+      [
+        61.32,
+        0.24
+      ],
+      [
+        514.32,
+        77.75
+      ],
+      [
+        453.27,
+        434.6
+      ],
+      [
+        -0.11,
+        356.4
+      ]
+    ],
+    "outer_size": [
+      459.83,
+      361.72
+    ],
+    "centre": [
+      257.2,
+      217.25
+    ],
+    "note": "clockwise tilt; the photo keeps this natural tilt on screen.",
+    "shadow": {
+      "image": "photo-shadow.webp",
+      "size": [
+        587,
+        531
+      ],
+      "photo_at": [
+        36,
+        48
+      ],
+      "width_pct_of_photo": 113.981,
+      "note": "same centre as photo.webp (crop is symmetric), so it takes the same left/top/transform.",
+      "css_px_per_src_px": 0.52,
+      "drop_shadows_css_px": [
+        [
+          1,
+          1.5,
+          0.22
+        ],
+        [
+          6,
+          9,
+          0.2
+        ]
+      ],
+      "colour": [
+        31,
+        52,
+        64
+      ]
+    }
+  },
+  "envelope": {
+    "size": [
+      551,
+      412
+    ],
+    "rotation_deg": 8.138,
+    "level_size": [
+      507.11,
+      344.41
+    ],
+    "level_origin_in_image": [
+      48.66,
+      -0.48
+    ],
+    "css_front_img": {
+      "width_pct_of_level": 108.655,
+      "translate_pct": [
+        -8.831,
+        0.116
+      ],
+      "rotate_deg": -8.138,
+      "note": "inside a level box rotated by +rotation: img {left:0; top:0; width:W%; transform-origin:0 0; transform: rotate(R) translate(X%, Y%)}"
+    },
+    "opening_polygon_level": [
+      [
+        -54.3,
+        -72.1
+      ],
+      [
+        213.8,
+        162.7
+      ],
+      [
+        293.4,
+        162.7
+      ],
+      [
+        681.4,
+        -177.3
+      ]
+    ],
+    "pocket_top_v": 162.7,
+    "wing_tip_first_rows_left": [
+      0,
+      1,
+      1,
+      1,
+      1,
+      2,
+      3,
+      5,
+      6,
+      8,
+      12,
+      15
+    ],
+    "wing_tip_first_rows_right": [
+      null,
+      0,
+      1,
+      1,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      11,
+      14
+    ],
+    "shadow": {
+      "image": "envelope-shadow.webp",
+      "size": [
+        584,
+        418
+      ],
+      "level_origin_at": [
+        37,
+        25
+      ],
+      "css_pct_of_level": {
+        "left": -7.296,
+        "top": -7.259,
+        "width": 115.163,
+        "height": 121.367
+      },
+      "note": "level frame, like envelope-inside.webp; goes just under envelope.webp (same z-index, earlier).",
+      "css_px_per_src_px": 0.5239,
+      "drop_shadows_css_px": [
+        [
+          1,
+          1,
+          0.16
+        ],
+        [
+          5,
+          9,
+          0.16
+        ]
+      ],
+      "colour": [
+        31,
+        52,
+        64
+      ]
+    },
+    "flap": {
+      "depth": 225.6,
+      "depth_frac_of_level_h": 0.655,
+      "image_size": [
+        508,
+        230
+      ],
+      "hinge_overlap_px": 3,
+      "front_hinge_row": 3,
+      "back_hinge_row": 227,
+      "apex_radius": 30.0,
+      "corner_radius": 7.0,
+      "min_cover_margin_px": 12.2,
+      "note": "front/back/shadow images share one frame: LW x image_size[1]. Front: hinge at row front_hinge_row, apex below. Back: apex at row 0, hinge at back_hinge_row, overlap below."
+    },
+    "opening_polygon_level_clipped": [
+      [
+        28.0,
+        0.0
+      ],
+      [
+        213.8,
+        162.7
+      ],
+      [
+        293.4,
+        162.7
+      ],
+      [
+        479.1,
+        0.0
+      ]
+    ],
+    "inside_image_size": [
+      508,
+      345
+    ]
+  },
+  "animals": {
+    "size": [
+      202,
+      252
+    ],
+    "content_bbox": [
+      2,
+      52,
+      198,
+      193
+    ]
+  }
+}

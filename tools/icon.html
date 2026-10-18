@@ -1,0 +1,98 @@
+<!doctype html>
+<!--
+  App / tab icons: "A & K" in Font 1. Build helper only — not part of the site.
+  Re-render with: python tools/render-images.py (draws it at 3-8x and shrinks it to public/images/icons/:
+  apple-touch-icon.png 180, favicon-192.png, favicon-32.png).
+    ?size=N   the square's size in CSS px
+    ?tab=1    the browser-tab look (favicon-32/192): a cream monogram on an ink rounded square with clear corners,
+              which still reads at 16 px in a tab. Without it: the home-screen look (apple-touch-icon), ink on the
+              page colour in a fine engraved frame.
+    ?small=1  just the ampersand, larger and a touch heavier (for 32 px)
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Icon</title>
+  <link rel="stylesheet" href="../assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <style>
+    html, body { margin: 0; background: transparent; }
+    .icon {
+      --s: 180px;
+      position: relative;
+      width: var(--s);
+      height: var(--s);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        radial-gradient(90% 90% at 35% 30%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 65%),
+        var(--c-bg);
+      color: var(--c-ink);
+    }
+    /* a fine double frame, like engraved stationery */
+    .icon::before {
+      content: "";
+      position: absolute;
+      inset: calc(var(--s) * 0.075);
+      border: calc(var(--s) * 0.007) solid rgba(49, 80, 94, 0.55);
+      box-shadow: inset 0 0 0 calc(var(--s) * 0.02) var(--c-bg), inset 0 0 0 calc(var(--s) * 0.026) rgba(49, 80, 94, 0.35);
+    }
+    .mono {
+      position: relative;
+      margin-top: calc(var(--s) * 0.035);
+      font: 400 calc(var(--s) * 0.315)/1 var(--font-script);
+      white-space: nowrap;
+    }
+    .mono .amp {
+      font-size: 0.6em;
+      margin: 0 0.02em;
+      vertical-align: 0.14em;
+    }
+    .mono-small { display: none; }
+    /* 32 px: just the script ampersand, larger and a touch heavier, no frame */
+    .small .icon::before, .small .mono { display: none; }
+    .small .mono-small {
+      display: block;
+      margin-top: calc(var(--s) * 0.1);
+      font: 400 calc(var(--s) * 0.86)/1 var(--font-script);
+      -webkit-text-stroke: calc(var(--s) * 0.018) currentColor;
+    }
+    /* the tab look: light lettering (cream like the envelope paper) on the ink square with a soft sheen top left, and
+       no frame, so the lettering can be bigger. Both are centred on their ink: the K's tail and the ampersand's
+       swash reach far to the right. */
+    .tab .icon {
+      --cream: #f5f0e6;
+      border-radius: 22%;
+      background:
+        radial-gradient(95% 95% at 30% 22%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 62%),
+        var(--c-ink);
+      color: var(--cream);
+    }
+    .tab .icon::before { display: none; }
+    .tab .mono {
+      margin-top: 0;
+      font-size: calc(var(--s) * 0.34);
+      transform: translateX(calc(var(--s) * -0.058));
+      -webkit-text-stroke: calc(var(--s) * 0.004) currentColor;
+    }
+    .tab.small .mono-small {
+      margin-top: 0;
+      font-size: calc(var(--s) * 0.8);
+      transform: translateX(-21%);
+      -webkit-text-stroke: calc(var(--s) * 0.03) currentColor;
+    }
+  </style>
+</head>
+<body>
+  <div class="icon" id="icon"><span class="mono">A<span class="amp">&amp;</span>K</span><span class="mono-small">&amp;</span></div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    if (q.get('size')) document.getElementById('icon').style.setProperty('--s', q.get('size') + 'px');
+    if (q.get('small')) document.body.classList.add('small');
+    if (q.get('tab')) document.body.classList.add('tab');
+  </script>
+</body>
+</html>

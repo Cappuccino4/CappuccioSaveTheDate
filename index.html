@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Austin &amp; Kelsey Grace · Save the Date</title>
+  <meta name="description" content="Save our date — April 18, 2027. A formal invitation will follow.">
+  <meta name="theme-color" content="#d6dee3">
+  <meta name="color-scheme" content="only light">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+
+  <!-- Link previews (iMessage, WhatsApp, Facebook, …) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Austin &amp; Kelsey Grace">
+  <meta property="og:title" content="Austin &amp; Kelsey Grace · Save the Date">
+  <meta property="og:description" content="Save our date — April 18, 2027. A formal invitation will follow.">
+  <meta property="og:url" content="https://cappuccino4.github.io/CappuccioSaveTheDate/">
+  <meta property="og:image" content="https://cappuccino4.github.io/CappuccioSaveTheDate/public/images/share-card.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Austin &amp; Kelsey Grace — Save the Date, 04.18.27: a photo-booth strip and an open envelope with their photo.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Austin &amp; Kelsey Grace · Save the Date">
+  <meta name="twitter:description" content="Save our date — April 18, 2027. A formal invitation will follow.">
+  <meta name="twitter:image" content="https://cappuccino4.github.io/CappuccioSaveTheDate/public/images/share-card.jpg">
+  <meta name="twitter:image:alt" content="Austin &amp; Kelsey Grace — Save the Date, 04.18.27.">
+
+  <link rel="icon" href="public/images/icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="public/images/icons/favicon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="public/images/icons/apple-touch-icon.png">
+
+  <!-- What the first screen needs first (and app.js's import, so it isn't found only once app.js arrives) -->
+  <link rel="preload" href="assets/fonts/imperial-script-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/poppins-600-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="public/images/cutouts/holder.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="public/images/cutouts/strip.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="modulepreload" href="assets/js/countdown.js">
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      // Browsers older than iOS 15 / Chrome 88 would start the app with a broken layout and missing images, so
+      // they get the friendly card instead (aspect-ratio support implies clamp(), WebP and the rest).
+      var supported = !!(window.CSS && CSS.supports && CSS.supports('aspect-ratio: 1') &&
+        CSS.supports('width: clamp(1px, 1vw, 2px)'));
+      if (supported) root.className = root.className.replace(/\bno-js\b/, 'js');
+      else window.__stdUnsupported = true;
+
+      // Safety net: when the app can't start, show the same friendly card the <noscript> fallback shows rather
+      // than a blank page, with a hint that fits (JavaScript is clearly on). app.js removes it if it starts late.
+      function showFallback() {
+        if (window.__stdReady) return;
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', showFallback);
+          return;
+        }
+        var ns = document.querySelector('noscript[data-fallback]');
+        if (!ns || document.getElementById('std-fallback')) return;
+        var box = document.createElement('div');
+        box.id = 'std-fallback';
+        box.innerHTML = ns.textContent;
+        var hint = box.querySelector('.ns-hint');
+        var text = ns.getAttribute(supported ? 'data-hint-failed' : 'data-hint-unsupported');
+        if (hint && text) hint.textContent = text;
+        ns.parentNode.insertBefore(box, ns);
+      }
+      window.__stdFail = showFallback; // a module script that fails to load calls this (onerror below)
+      if (!supported) showFallback();
+      // Module scripts always run before 'load', so if the app still hasn't started by then, it failed.
+      window.addEventListener('load', function () { setTimeout(showFallback, 1500); });
+      setTimeout(showFallback, 20000); // last resort, e.g. while some other file never finishes loading
+    })();
+  </script>
+
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/form.css">
+
+  <script src="assets/js/config.js"></script>
+  <script type="module" src="assets/js/app.js" onerror="window.__stdFail && __stdFail()"></script>
+  <script type="module" src="assets/js/form.js"></script>
+  <script nomodule>window.__stdFail && __stdFail();</script>
+</head>
+<body>
+  <main class="app" id="app">
+
+    <!-- ============================================================ Page 1 · Home -->
+    <section class="screen screen--home" id="screen-home" data-screen="home" aria-labelledby="home-title">
+      <p class="eyebrow home-eyebrow">We are getting married!</p>
+
+      <h1 class="names" id="home-title" tabindex="-1" data-screen-heading>
+        <span class="names-line names-line--1 wipe">Austin &amp;</span>
+        <span class="names-line names-line--2 wipe">Kelsey Grace</span>
+      </h1>
+
+      <div class="booth">
+        <img class="booth-shadow" src="public/images/cutouts/holder-shadow.webp" width="395" height="760" alt="" decoding="async">
+        <img class="booth-holder" src="public/images/cutouts/holder.webp" width="260" height="626" alt="" fetchpriority="high">
+        <div class="booth-tray">
+          <div class="booth-print">
+            <div class="booth-jitter">
+              <div class="strip">
+                <img class="strip-img" src="public/images/cutouts/strip.webp" width="115" height="419" decoding="async" fetchpriority="high"
+                     alt="Photo-booth strip of Austin and Kelsey Grace: laughing, smiling, a kiss, and a wave">
+              </div>
+            </div>
+          </div>
+          <span class="booth-slot" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <p class="invited"><span class="wipe">You’re Invited</span></p>
+
+      <a class="btn btn--shimmer home-cta" href="#/invitation">Open your invitation</a>
+    </section>
+
+    <!-- ============================================================ Page 2 · Invitation -->
+    <section class="screen screen--invitation" id="screen-invitation" data-screen="invitation" aria-labelledby="invitation-title">
+      <div class="stage">
+        <h1 class="save-date" id="invitation-title" tabindex="-1" data-screen-heading>
+          <span class="sd-line sd-line--1 wipe">Save Our</span>
+          <span class="sd-line sd-line--2 wipe">Date</span>
+          <span class="sd-line sd-line--3 wipe">04.18.27</span>
+          <span class="sr-only"> — Sunday, April 18, 2027</span>
+        </h1>
+
+        <!-- Page 2 and 3's pictures load from data-src once page 1 has everything it needs (app.js imagesFor) -->
+        <div class="env-pos">
+          <div class="env">
+            <img class="env-inside" data-src="public/images/cutouts/envelope-inside.webp" width="508" height="345" alt="" decoding="async">
+            <div class="env-flap-wrap">
+              <div class="env-flap">
+                <img class="env-flap-face env-flap-front" data-src="public/images/cutouts/envelope-flap-front.webp" width="508" height="230" alt="" decoding="async">
+                <img class="env-flap-face env-flap-back" data-src="public/images/cutouts/envelope-flap-back.webp" width="508" height="230" alt="" decoding="async">
+                <img class="env-seal" data-src="public/images/cutouts/seal.webp" width="132" height="132" alt="" decoding="async">
+              </div>
+            </div>
+            <div class="env-photo-clip">
+              <div class="env-photo-rise">
+                <img class="env-photo-shadow" data-src="public/images/cutouts/photo-shadow.webp" width="587" height="531" alt="" decoding="async">
+                <img class="env-photo" data-src="public/images/cutouts/photo.webp" width="515" height="435" decoding="async"
+                     alt="Austin and Kelsey Grace nose to nose between library bookshelves">
+              </div>
+            </div>
+            <img class="env-shadow" data-src="public/images/cutouts/envelope-shadow.webp" width="584" height="418" alt="" decoding="async">
+            <img class="env-front" data-src="public/images/cutouts/envelope.webp" width="551" height="412" alt="" decoding="async">
+            <img class="env-flap-shadow" data-src="public/images/cutouts/envelope-flap-shadow.webp" width="508" height="230" alt="" decoding="async">
+            <p class="env-note">A formal<br>invitation<br>will follow</p>
+          </div>
+        </div>
+
+        <div class="stage-strip">
+          <div class="strip">
+            <img class="strip-img" data-src="public/images/cutouts/strip.webp" width="115" height="419" alt="" decoding="async">
+          </div>
+        </div>
+      </div>
+
+      <div class="invitation-body">
+        <p class="date-line" aria-hidden="true"><span>Sunday</span><span class="dl-sep"> · </span><span>April&nbsp;18</span><span class="dl-sep"> · </span><span>2027</span></p>
+        <p class="lede">Kindly share your mailing address below so we can send your official invitation.</p>
+        <a class="btn invitation-cta" href="#/details">Share your details</a>
+
+        <div class="countdown" data-countdown>
+          <p class="countdown-caption" aria-hidden="true">Until we say “I&nbsp;do”</p>
+          <div class="countdown-tiles" aria-hidden="true">
+            <div class="cd-pair">
+              <div class="cd-tile"><span class="cd-num" data-unit="days">000</span><span class="cd-label" data-label="days">Days</span></div>
+              <div class="cd-tile"><span class="cd-num" data-unit="hours">00</span><span class="cd-label" data-label="hours">Hours</span></div>
+            </div>
+            <div class="cd-pair">
+              <div class="cd-tile"><span class="cd-num" data-unit="minutes">00</span><span class="cd-label" data-label="minutes">Minutes</span></div>
+              <div class="cd-tile"><span class="cd-num" data-unit="seconds">00</span><span class="cd-label" data-label="seconds">Seconds</span></div>
+            </div>
+          </div>
+          <p class="countdown-done" aria-hidden="true" hidden></p>
+          <p class="sr-only" data-countdown-summary>Our wedding is on Sunday, April 18, 2027 at 4 PM Eastern.</p>
+        </div>
+
+        <a class="btn-link back-link" href="#/" data-back="home"><svg class="back-link-icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path d="M13 8H3.6M7.6 3.8 3.4 8l4.2 4.2"/></svg> Go back</a>
+      </div>
+    </section>
+
+    <!-- ============================================================ Page 3 · Details -->
+    <section class="screen screen--details" id="screen-details" data-screen="details" aria-labelledby="details-title">
+      <h1 class="details-title" id="details-title" tabindex="-1" data-screen-heading>Share Details</h1>
+      <div class="animals-wrap">
+        <img class="animals" data-src="public/images/cutouts/animals.webp" width="202" height="252" decoding="async"
+             alt="Illustration of a black-and-white cat and a French bulldog clinking champagne glasses">
+      </div>
+      <p class="details-tagline">We can’t wait to celebrate with you</p>
+      <p class="lede details-lede">Kindly share your mailing details below so we can send your official invitation.</p>
+
+      <div id="details-form" class="details-form"></div>
+
+      <a class="btn-link back-link" href="#/invitation" data-back="invitation"><svg class="back-link-icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path d="M13 8H3.6M7.6 3.8 3.4 8l4.2 4.2"/></svg> Back to the invitation</a>
+    </section>
+
+    <!-- Shown without JavaScript. When the app can't start, the script in <head> copies the card in too, with one
+         of the data-hint lines in place of .ns-hint. -->
+    <noscript data-fallback
+              data-hint-failed="Something didn’t load. Please check your connection and reload the&nbsp;page."
+              data-hint-unsupported="To open the full invitation and share your mailing details, please open this link on a newer phone&nbsp;or&nbsp;computer.">
+      <div class="noscript-card">
+        <p class="eyebrow">We are getting married!</p>
+        <p class="ns-names"><span>Austin &amp;</span> <span>Kelsey Grace</span></p>
+        <p class="ns-date">Save the date<br>Sunday, April 18, 2027</p>
+        <p class="ns-note">A formal invitation will follow.</p>
+        <p class="ns-hint">To open the full invitation and share your mailing details, please reload this page with JavaScript&nbsp;turned&nbsp;on.</p>
+      </div>
+    </noscript>
+  </main>
+</body>
+</html>
