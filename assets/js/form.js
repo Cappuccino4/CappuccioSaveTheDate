@@ -90,6 +90,9 @@ const COPY = {
   declined: 'We totally understand and appreciate the honesty. Thank you for letting us know.',
   revisit: 'We already have your details from this device. Thank you!',
   preview: 'Preview mode — this response wasn’t saved. (Connect Google Sheets to start collecting responses.)',
+  website: 'Find all the details on our wedding website.',
+  websiteButton: 'Visit our Zola page',
+  newTab: '(opens in a new tab)',
   toInvitation: 'Back to the invitation',
   another: 'Submit another response',
   friend: 'friend',                 // greeting when there's no usable name
@@ -123,7 +126,15 @@ const ICON = {
   check: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 12.6l4.1 4.1 8.9-9.4"/></svg>',
   alert: '<svg class="df-error-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.6"/><path d="M8 4.7v4.1"/><circle class="df-dot" cx="8" cy="11.3" r=".55"/></svg>',
   heart: `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${HEART_PATH}"/></svg>`,
+  external: '<svg class="df-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 3.5h-3v9h9v-3M9.5 3.5h3v3M12.5 3.5 7 9"/></svg>',
 };
+
+/** The couple's wedding website from config.js (weddingWebsiteURL), linked on the thank-you card; https only. */
+function websiteURL() {
+  const cfg = window.SAVE_THE_DATE_CONFIG;
+  const url = cfg && typeof cfg.weddingWebsiteURL === 'string' ? cfg.weddingWebsiteURL.trim() : '';
+  return /^https:\/\/[^\s"'<>]+$/i.test(url) ? url : '';
+}
 
 /* ------------------------------------------------------------------ markup (static, never guest data) */
 
@@ -150,12 +161,18 @@ function field(opts) {
 }
 
 function finale(view, titleId, text) {
+  const site = websiteURL();
   return `
     <div class="df-view df-done" data-view="${view}" hidden>
       <div class="df-flourish" aria-hidden="true"><span></span>${ICON.heart}<span></span></div>
       <h2 class="df-done-title" id="${titleId}" tabindex="-1"></h2>
       <p class="df-done-text">${esc(text)}</p>${view === 'done' ? `
-      <p class="df-note" hidden>${esc(COPY.preview)}</p>` : ''}
+      <p class="df-note" hidden>${esc(COPY.preview)}</p>` : ''}${site ? `
+      <div class="df-website">
+        <p class="df-website-text">${esc(COPY.website)}</p>
+        <a class="btn df-website-link" href="${esc(site)}" target="_blank" rel="noopener">${esc(COPY.websiteButton)}${ICON.external}<span class="sr-only"> ${esc(COPY.newTab)}</span></a>
+        <p class="df-website-address">${esc(site.replace(/^https:\/\/(?:www\.)?/i, '').replace(/\/$/, '')).replace(/\//g, '/<wbr>')}</p>
+      </div>` : ''}
       <div class="df-done-actions">
         <a class="btn-link" href="#/invitation" data-back="invitation">${esc(COPY.toInvitation)}</a>
         <button type="button" class="btn-link" data-action="another">${esc(COPY.another)}</button>

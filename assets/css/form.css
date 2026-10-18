@@ -709,6 +709,45 @@
   border-radius: 2px;
 }
 
+/* the couple's wedding website (config.js weddingWebsiteURL), after every reply */
+.df-website {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--c-hairline);
+}
+
+.df-website-text {
+  max-width: 30ch;
+  margin: 0 auto 12px;
+  font: 400 14px/1.5 var(--font-sans);
+  text-wrap: balance;
+  color: var(--c-ink);
+}
+
+/* full width so the label can wrap (balanced) on the narrowest phones instead of overflowing */
+.df-website-link {
+  width: 100%;
+  padding-inline: 16px;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* breaks only after a slash (form.js adds <wbr>s), never mid-word */
+.df-website-address {
+  margin: 8px 0 0;
+  font: 400 12px/1.4 var(--font-sans);
+  overflow-wrap: break-word;
+  color: var(--c-ink-muted);
+}
+
+/* the narrowest phones: a little tighter, so the label stays on one line */
+@media (max-width: 359px) {
+  .df-website-link {
+    padding-inline: 12px;
+    letter-spacing: 0.08em;
+  }
+}
+
 .df-done-actions {
   display: flex;
   flex-direction: column;

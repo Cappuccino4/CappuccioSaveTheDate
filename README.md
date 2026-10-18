@@ -139,6 +139,7 @@ This connects the form to a Google Sheet that only you (and anyone you share it 
    window.SAVE_THE_DATE_CONFIG = {
      formEndpoint: 'https://script.google.com/macros/s/AKfy…/exec',
      weddingDateISO: '2027-04-18T16:00:00-04:00',
+     weddingWebsiteURL: 'https://www.zola.com/wedding/kelseygraceandaustin',
    };
    ```
 
@@ -263,6 +264,7 @@ The URL stays the same, so `config.js` doesn't change. Don't use *New deployment
 
 | I want to change… | Where |
 |---|---|
+| The Zola link on the thank-you card | `assets/js/config.js` → `weddingWebsiteURL`. Every guest sees a **Visit our Zola page** button once they've replied, whether or not they can come (and on the *"You're all set"* card when they come back). Set it to `''` to hide the button; its wording is in `assets/js/form.js` (`COPY.website` / `COPY.websiteButton`). |
 | The wedding date/time | `assets/js/config.js` → `weddingDateISO`. Keep the format. `-04:00` means Eastern *Daylight* Time (spring to fall); use `-05:00` for a winter date. It drives the countdown and its *"It's wedding day!"* / *"Just married!"* messages. The date is also *written out* as text in a few places, so change those too: `index.html` (the script "04.18.27" on the invitation, the plain "Sunday · April 18 · 2027" line, the hidden text for screen readers, the no-JavaScript card, and in the link-preview tags at the top, "April 18, 2027" in `description`, `og:description` and `twitter:description` and "04.18.27" in the picture descriptions `og:image:alt` and `twitter:image:alt`), `responses.html` ("Save the Date · 04.18.27"), and the link-preview picture (`tools/share-card.html`, then re-render it, see below). In `index.html`, searching for `April` and `04.18.27` finds every spot. |
 | The words on the pages (headings, buttons, "04.18.27") | `index.html` |
 | The wording of the form's questions | `assets/js/form.js` (the `COPY` and `ERRORS` lists near the top of the file) |
